@@ -26,6 +26,22 @@ The WordPress PHP Project is a custom theme/plugin that extends the functionalit
 
 3. Use the provided short-codes and widgets to add custom functionality to your website.
 
+## Run application
+
+To run the WordPress app locally, follow these steps:
+
+1. Ensure you have PHP and a web server (such as Apache or Nginx) installed on your machine.
+
+2. Create a new MySQL database for your WordPress installation.
+
+3. Rename the `wp-config-sample.php` file in the WordPress root directory to `wp-config.php`.
+
+4. Open the `wp-config.php` file and update the database details (database name, username, password) with your own.
+
+5. Start your web server and navigate to the WordPress installation directory in your browser.
+
+6. Follow the on-screen instructions to complete the WordPress installation.
+
 ## Contributing
 
 Contributions are welcome! If you have any ideas, suggestions, or bug reports, please open an issue or submit a pull request.
