@@ -1,0 +1,12 @@
+Tuesday 10/10/2017
+
+1. Added product description limit check when product description is send to 2c2p payment gateway.
+2. Chage the cancel url / redirect to cart url because old url is not working with linux environment
+-----------------------------------------------------------------------------------------------------------------------
+v7.0.2
+
+1. added default product description
+-----------------------------------------------------------------------------------------------------------------------
+v7.0.3 
+1. Stock deduction after payment successful
+----------------------------------------------------------------------------------------------------------------------
