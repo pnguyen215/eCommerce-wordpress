@@ -12,30 +12,32 @@
  * * Secret keys
  * * Database table prefix
  * * ABSPATH
- *
+ * 
  * @link https://wordpress.org/documentation/article/editing-wp-config-php/
  *
  * @package WordPress
  */
-
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define('DB_NAME', DB_NAME);
+include("conf.php");
+
+define('DB_NAME', DATABASE_NAME);
 
 /** Database username */
-define('DB_USER', DB_USER);
+define('DB_USER', DATABASE_USERNAME);
 
 /** Database password */
-define('DB_PASSWORD', DB_PASSWORD);
+define('DB_PASSWORD', DATABASE_PASSWORD);
 
 /** Database hostname */
-define('DB_HOST', DB_HOST);
+define('DB_HOST', DATABASE_HOST);
 
 /** Database charset to use in creating database tables. */
-define('DB_CHARSET', DB_CHARSET);
+define('DB_CHARSET', DATABASE_CHARSET);
 
 /** The database collate type. Don't change this if in doubt. */
 define('DB_COLLATE', '');
+
 
 /**#@+
  * Authentication unique keys and salts.
@@ -79,7 +81,7 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/documentation/article/debugging-in-wordpress/
  */
-define('WP_DEBUG', false);
+define('WP_DEBUG', true);
 
 /* Add any custom values between this line and the "stop editing" line. */
 
