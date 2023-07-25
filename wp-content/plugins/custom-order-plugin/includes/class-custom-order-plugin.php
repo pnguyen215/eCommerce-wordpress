@@ -1,7 +1,7 @@
 <?php
 use \Firebase\JWT\JWT;
 
-require_once __DIR__ . '/conf.php';
+require_once __DIR__ . './../../../../conf.php';
 
 class Custom_Order_Plugin
 {
@@ -29,7 +29,9 @@ class Custom_Order_Plugin
             if ($order) {
                 // Get payment url from 2C2P, after that redirect to payment url
                 $token = $this->generate_payment_jwt_token($order);
-                echo '=> payment_token = ' . $token;
+                echo '=> payment_jwt_token = ' . $token;
+                $paymentTokenResponse = $this->send_payment_jwt_token_request($token);
+                echo '=> payment_jwt_token_response = ' . $paymentTokenResponse['payload'];
                 exit;
             } else {
                 $this->redirect_page_order_error();
@@ -51,7 +53,7 @@ class Custom_Order_Plugin
             // Add a product to the order (you may adjust product ID and quantity)
             $quantity = 1;
             $product = $this->find_products_by_sku($product_id);
-            
+
             if ($product) {
                 $order->add_product($product, $quantity);
             }
@@ -105,8 +107,37 @@ class Custom_Order_Plugin
             "currencyCode" => $order->get_currency()
         );
         $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
-        $token = '{"payload":"' . $jwt . '"}';
-        return $token;
+        // $token = '{"payload":"' . $jwt . '"}';
+        return $jwt;
     }
 
+    public function send_payment_jwt_token_request($token)
+    {
+        $endpoint = _2C2P_HOST . '/paymentToken';
+
+        $data = array(
+            'payload' => $token,
+        );
+
+        $headers = array(
+            'Content-Type' => 'application/json',
+        );
+
+        $args = array(
+            'headers' => $headers,
+            'body' => json_encode($data),
+        );
+
+        // Send the POST request
+        $response = wp_remote_post($endpoint, $args);
+        // Check for errors in the request
+        if (is_wp_error($response)) {
+            return null; // Handle the error as needed
+        }
+        // Get the response body
+        $response_body = wp_remote_retrieve_body($response);
+        // Decode the JSON response
+        $decoded_response = json_decode($response_body, true);
+        return $decoded_response;
+    }
 }
