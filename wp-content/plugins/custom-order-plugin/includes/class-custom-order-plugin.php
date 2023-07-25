@@ -30,8 +30,6 @@ class Custom_Order_Plugin
             } else {
                 $this->redirect_page_order_error();
             }
-        } else {
-            $this->redirect_page_order_error();
         }
         // }
     }
