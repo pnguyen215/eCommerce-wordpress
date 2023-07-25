@@ -37,7 +37,7 @@ class Custom_Order_Plugin
                 $this->redirect_page_order_error();
             }
         }
-        // }
+        // } 
     }
 
     public function create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name)
@@ -121,9 +121,9 @@ class Custom_Order_Plugin
         $merchant_id = _2C2P_MERCHANT_ID;
         $payload = array(
             "merchantID" => $merchant_id,
-            "invoiceNo" => strval($order->get_id()),
+            "invoiceNo" => strval($order->get_order_key()),
             "description" => $order->get_billing_first_name(),
-            "amount" => floatval($order->get_total()),
+            "amount" => $order->get_total(),
             "currencyCode" => $order->get_currency()
         );
         $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
