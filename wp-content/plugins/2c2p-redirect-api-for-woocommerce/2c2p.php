@@ -398,7 +398,7 @@ function fun2c2p_init()
             } else {
                 $product_name = mb_strimwidth($fixed_description, 0, 255, "");
             }
-
+            $default_lang = "en";
             $fun2c2p_args = array(
                 'payment_description' => $product_name,
                 'order_id' => $order_id,
