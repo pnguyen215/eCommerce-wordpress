@@ -26,9 +26,10 @@ class Custom_Order_Plugin
             $customer_phone = sanitize_text_field($_GET['phone']);
             $product_id = sanitize_text_field($_GET['product_id']);
             $product_name = sanitize_text_field($_GET['product_name']);
+            $click_id = wp_generate_uuid4(); // fake click_id on link query params
 
             // Create order's WooCommerce 
-            $order = $this->create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name);
+            $order = $this->create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $click_id);
 
             // If the order created successfully
             if ($order) {
@@ -40,15 +41,34 @@ class Custom_Order_Plugin
         // } 
     }
 
-    public function create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name)
+    public function create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $transaction_id)
     {
         // Create an empty order instance
         $order = wc_create_order();
         if ($order) {
-            // Set customer information
+            // billing
             $order->set_billing_first_name($customer_name);
             $order->set_billing_email($customer_email);
             $order->set_billing_phone($customer_phone);
+
+            // transaction info
+            $order->set_transaction_id($transaction_id);
+
+            // shipping
+            $order->set_shipping_first_name($customer_name);
+            $order->set_shipping_phone($customer_phone);
+
+            // billing address
+            $order->set_billing_city("1");
+            $order->set_billing_state("1");
+            $order->set_billing_country("1");
+            $order->set_billing_address_1("17 Ton That Tung, District 1, HCM");
+
+            // shipping address
+            $order->set_shipping_city("1");
+            $order->set_shipping_state("1");
+            $order->set_shipping_country("1");
+            $order->set_shipping_address_1("17 Ton That Tung, District 1, HCM");
 
             // Add a product to the order (you may adjust product ID and quantity)
             $quantity = 1;
