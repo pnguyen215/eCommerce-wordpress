@@ -89,7 +89,6 @@ class Custom_Order_Plugin
     {
         $order_pay_page_id = wc_get_page_id('checkout');
         $url = '/?page_id=' . $order_pay_page_id . '&order-pay=' . $order->get_id() . '&pay_for_order=true' . '&key=' . $order->get_order_key();
-        // $url = '/?page_id=' . $order_pay_page_id . '&order-pay=' . $order->get_id() . '&key=' . $order->get_order_key() . '&order=' . $order->get_id();
         $this->redirect_page_payment($url);
     }
 
@@ -124,7 +123,14 @@ class Custom_Order_Plugin
             "invoiceNo" => strval($order->get_order_key()),
             "description" => $order->get_billing_first_name(),
             "amount" => $order->get_total(),
-            "currencyCode" => $order->get_currency()
+            "currencyCode" => $order->get_currency(),
+            "uiParams" => array(
+                "userInfo" => array(
+                    "name" => $order->get_billing_first_name(),
+                    "email" => $order->get_billing_email(),
+                    "mobileNo" => $order->get_billing_phone()
+                )
+            )
         );
         $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
         return $jwt;
