@@ -32,7 +32,7 @@ class Custom_Order_Plugin
 
             // If the order created successfully
             if ($order) {
-                $this->redirect_2c2p_payment_url($order);
+                $this->redirect_checkout_payment_url($order);
             } else {
                 $this->redirect_page_order_error();
             }
@@ -83,6 +83,14 @@ class Custom_Order_Plugin
             $this->redirect_page_payment($decodeToken["webPaymentUrl"]);
         }
         exit;
+    }
+
+    public function redirect_checkout_payment_url(WC_Order $order)
+    {
+        $order_pay_page_id = wc_get_page_id('checkout');
+        $url = '/?page_id=' . $order_pay_page_id . '&order-pay=' . $order->get_id() . '&pay_for_order=true' . '&key=' . $order->get_order_key();
+        // $url = '/?page_id=' . $order_pay_page_id . '&order-pay=' . $order->get_id() . '&key=' . $order->get_order_key() . '&order=' . $order->get_id();
+        $this->redirect_page_payment($url);
     }
 
     public function redirect_page_payment($url)
