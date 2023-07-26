@@ -46,7 +46,7 @@ class Custom_Order_Plugin
         // } 
     }
 
-    public function create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $transaction_id, $customer_id)
+    public function create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $transaction_id, $offer_id)
     {
         // Create an empty order instance
         $order = wc_create_order();
@@ -58,7 +58,7 @@ class Custom_Order_Plugin
 
             // transaction info
             $order->set_transaction_id($transaction_id);
-            $order->set_customer_id(intval($customer_id));
+            $order->set_billing_postcode($offer_id);
 
             // shipping
             $order->set_shipping_first_name($customer_name);
