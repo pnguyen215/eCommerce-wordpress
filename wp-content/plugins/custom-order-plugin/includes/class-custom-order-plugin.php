@@ -33,7 +33,11 @@ class Custom_Order_Plugin
 
             // If the order created successfully
             if ($order) {
-                $this->redirect_checkout_payment_url($order);
+                if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL) {
+                    $this->redirect_checkout_payment_url($order);
+                } else {
+                    $this->redirect_2c2p_payment_url($order);
+                }
             } else {
                 $this->redirect_page_order_error();
             }
