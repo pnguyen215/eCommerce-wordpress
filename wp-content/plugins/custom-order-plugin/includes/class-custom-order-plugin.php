@@ -26,10 +26,11 @@ class Custom_Order_Plugin
             $customer_phone = sanitize_text_field($_GET['phone']);
             $product_id = sanitize_text_field($_GET['product_id']);
             $product_name = sanitize_text_field($_GET['product_name']);
+            $offer_id = sanitize_text_field($_GET['offer_id']);
             $click_id = wp_generate_uuid4(); // fake click_id on link query params
 
             // Create order's WooCommerce 
-            $order = $this->create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $click_id);
+            $order = $this->create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $click_id, $offer_id);
 
             // If the order created successfully
             if ($order) {
@@ -45,7 +46,7 @@ class Custom_Order_Plugin
         // } 
     }
 
-    public function create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $transaction_id)
+    public function create_woocommerce_order($customer_name, $customer_email, $customer_phone, $product_id, $product_name, $transaction_id, $customer_id)
     {
         // Create an empty order instance
         $order = wc_create_order();
@@ -57,6 +58,7 @@ class Custom_Order_Plugin
 
             // transaction info
             $order->set_transaction_id($transaction_id);
+            $order->set_customer_id(intval($customer_id));
 
             // shipping
             $order->set_shipping_first_name($customer_name);
