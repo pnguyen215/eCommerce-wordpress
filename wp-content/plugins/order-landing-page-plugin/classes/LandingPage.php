@@ -38,6 +38,26 @@ class LandingPage
     {
         return $this->link;
     }
+
+    public function isClickIdTrue(): bool
+    {
+        return !empty($this->getClickId());
+    }
+
+    public function isClickIdTrueWith(LandingPage $landing): bool
+    {
+        return is_null($landing) ? false : !empty($landing->click_id);
+    }
+
+    public function isTransactionIdTrue(): bool
+    {
+        return !empty($this->getTransactionId());
+    }
+
+    public function isTransactionIdTrueWith(LandingPage $landing): bool
+    {
+        return is_null($landing) ? false : !empty($landing->transaction_id);
+    }
 }
 
 ?>

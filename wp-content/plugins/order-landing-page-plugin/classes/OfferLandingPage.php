@@ -38,5 +38,25 @@ class OfferLandingPage
     {
         return $this->product_name;
     }
+
+    public function isOfferIdTrue(): bool
+    {
+        return !is_null($this->getOfferId()) && is_numeric($this->getOfferId()) && $this->getOfferId() > 0;
+    }
+
+    public function isOfferIdTrueWith(OfferLandingPage $order): bool
+    {
+        return is_null($order) ? false : is_numeric($order->offer_id) && $order->offer_id > 0;
+    }
+
+    public function isProductIdTrue(): bool
+    {
+        return !is_null($this->getProductId()) && is_numeric($this->getProductId()) && $this->getProductId() > 0;
+    }
+
+    public function isProductIdTrueWith(OfferLandingPage $order): bool
+    {
+        return is_null($order) ? false : is_numeric($order->product_id) && $order->product_id > 0;
+    }
 }
 ?>

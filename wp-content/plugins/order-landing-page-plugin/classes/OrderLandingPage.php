@@ -77,5 +77,31 @@ class OrderLandingPage
     {
         return $this->landing_page;
     }
+
+    public function isPhoneTrue(): bool
+    {
+        return !empty($this->getCustomerPhone());
+    }
+
+    public function isPhoneTrueWith(OrderLandingPage $order): bool
+    {
+        if (is_null($order)) {
+            return false;
+        }
+        return !empty($order->customer_phone);
+    }
+
+    public function isEmailTrue(): bool
+    {
+        return !empty($this->getCustomerEmail()) && is_email($this->getCustomerEmail());
+    }
+
+    public function isEmailTrueWith(OrderLandingPage $order): bool
+    {
+        if (is_null($order)) {
+            return false;
+        }
+        return !empty($order->customer_email) && is_email($order->customer_email);
+    }
 }
 ?>
