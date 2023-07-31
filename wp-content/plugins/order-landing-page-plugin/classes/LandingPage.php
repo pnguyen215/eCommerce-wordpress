@@ -1,6 +1,6 @@
 <?php
 
-class LandingPage
+class LandingPage implements \JsonSerializable
 {
     private $link;
     private $click_id;
@@ -57,6 +57,16 @@ class LandingPage
     public function isTransactionIdTrueWith(LandingPage $landing): bool
     {
         return is_null($landing) ? false : !empty($landing->transaction_id);
+    }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function toJson()
+    {
+        return json_encode($this, JSON_PRETTY_PRINT);
     }
 }
 

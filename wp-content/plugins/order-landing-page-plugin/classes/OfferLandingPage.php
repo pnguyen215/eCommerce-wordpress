@@ -1,6 +1,6 @@
 <?php
 
-class OfferLandingPage
+class OfferLandingPage implements \JsonSerializable
 {
     private $offer_id;
     private $product_id;
@@ -57,6 +57,16 @@ class OfferLandingPage
     public function isProductIdTrueWith(OfferLandingPage $order): bool
     {
         return is_null($order) ? false : is_numeric($order->product_id) && $order->product_id > 0;
+    }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function toJson()
+    {
+        return json_encode($this, JSON_PRETTY_PRINT);
     }
 }
 ?>

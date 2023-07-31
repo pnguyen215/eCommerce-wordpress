@@ -1,6 +1,6 @@
 <?php
 
-class AddressLandingPage
+class AddressLandingPage implements \JsonSerializable
 {
     private $province_id;
     private $province_name;
@@ -85,6 +85,16 @@ class AddressLandingPage
     public function getShippingAddress(): string|null
     {
         return $this->shipping_address;
+    }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function toJson()
+    {
+        return json_encode($this, JSON_PRETTY_PRINT);
     }
 }
 ?>

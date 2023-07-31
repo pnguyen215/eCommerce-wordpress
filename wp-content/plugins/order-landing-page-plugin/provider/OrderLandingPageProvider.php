@@ -29,6 +29,7 @@ class OrderLandingPageProvider
             $district_name = isset($_GET['district_name']) ? sanitize_text_field($_GET['district_name']) : VIRTUAL_SANDBOX_DISTRICT_NAME;
             $ward_name = isset($_GET['ward_name']) ? sanitize_text_field($_GET['ward_name']) : VIRTUAL_SANDBOX_WARD_NAME;
             $shipping_address = isset($_GET['shipping_address']) ? sanitize_text_field($_GET['shipping_address']) : VIRTUAL_SANDBOX_SHIPPING_ADDRESS;
+            $link = isset($_GET['link']) ? sanitize_text_field($_GET['link']) : VIRTUAL_SANDBOX_LINK;
             $click_id = isset($_GET['click_id']) ? sanitize_text_field($_GET['click_id']) : "<click-id>";
             $transaction_id = isset($_GET['transaction_id']) ? sanitize_text_field($_GET['transaction_id']) : "<transaction-id>";
 
@@ -54,7 +55,8 @@ class OrderLandingPageProvider
 
             $landing_page
                 ->setClickId($click_id)
-                ->setTransactionId($transaction_id);
+                ->setTransactionId($transaction_id)
+                ->setLink($link);
 
             $order_landing_page
                 ->setCustomerName($customer_name)
@@ -64,6 +66,7 @@ class OrderLandingPageProvider
                 ->setOffer($offer)
                 ->setLandingPage($landing_page);
 
+            echo $order_landing_page->toJson();
             $order = $this->create_woocommerce_order($order_landing_page);
             if ($order) {
                 if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL) {

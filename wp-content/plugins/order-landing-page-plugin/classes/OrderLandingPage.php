@@ -3,7 +3,7 @@ require_once __DIR__ . './../classes/LandingPage.php';
 require_once __DIR__ . './../classes/OfferLandingPage.php';
 require_once __DIR__ . './../classes/AddressLandingPage.php';
 
-class OrderLandingPage
+class OrderLandingPage implements \JsonSerializable
 {
     private $customer_name;
     private $customer_email;
@@ -102,6 +102,16 @@ class OrderLandingPage
             return false;
         }
         return !empty($order->customer_email) && is_email($order->customer_email);
+    }
+
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    public function toJson()
+    {
+        return json_encode($this, JSON_PRETTY_PRINT);
     }
 }
 ?>
