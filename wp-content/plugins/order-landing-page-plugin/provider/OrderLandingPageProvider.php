@@ -17,72 +17,72 @@ class OrderLandingPageProvider
 
     public function process_order_landing_page()
     {
-        if (is_page('custom-order-form')) {
-            if (
-                isset($_GET['name']) &&
-                isset($_GET['email']) &&
-                isset($_GET['phone']) &&
-                isset($_GET['product_id'])
-            ) {
-                $customer_name = isset($_GET['name']) ? sanitize_text_field($_GET['name']) : VIRTUAL_SANDBOX_CUSTOMER_NAME;
-                $customer_email = isset($_GET['email']) ? sanitize_email($_GET['email']) : VIRTUAL_SANDBOX_CUSTOMER_EMAIL;
-                $customer_phone = isset($_GET['phone']) ? sanitize_text_field($_GET['phone']) : VIRTUAL_SANDBOX_CUSTOMER_PHONE;
-                $product_id = intval(isset($_GET['product_id']) ? sanitize_text_field($_GET['product_id']) : VIRTUAL_SANDBOX_PRODUCT_ID);
-                $product_name = isset($_GET['product_name']) ? sanitize_text_field($_GET['product_name']) : VIRTUAL_SANDBOX_PRODUCT_NAME;
-                $offer_id = intval(isset($_GET['offer_id']) ? sanitize_text_field($_GET['offer_id']) : VIRTUAL_SANDBOX_OFFER_ID);
-                $province_name = isset($_GET['province_name']) ? sanitize_text_field($_GET['province_name']) : VIRTUAL_SANDBOX_PROVINCE_NAME;
-                $district_name = isset($_GET['district_name']) ? sanitize_text_field($_GET['district_name']) : VIRTUAL_SANDBOX_DISTRICT_NAME;
-                $ward_name = isset($_GET['ward_name']) ? sanitize_text_field($_GET['ward_name']) : VIRTUAL_SANDBOX_WARD_NAME;
-                $shipping_address = isset($_GET['shipping_address']) ? sanitize_text_field($_GET['shipping_address']) : VIRTUAL_SANDBOX_SHIPPING_ADDRESS;
-                $link = isset($_GET['link']) ? sanitize_text_field($_GET['link']) : VIRTUAL_SANDBOX_LINK;
-                $click_id = isset($_GET['click_id']) ? sanitize_text_field($_GET['click_id']) : "<click-id>";
-                $transaction_id = isset($_GET['transaction_id']) ? sanitize_text_field($_GET['transaction_id']) : "<transaction-id>";
+        // if (is_page('custom-order-form')) {
+        if (
+            isset($_GET['name']) &&
+            isset($_GET['email']) &&
+            isset($_GET['phone']) &&
+            isset($_GET['product_id'])
+        ) {
+            $customer_name = isset($_GET['name']) ? sanitize_text_field($_GET['name']) : VIRTUAL_SANDBOX_CUSTOMER_NAME;
+            $customer_email = isset($_GET['email']) ? sanitize_email($_GET['email']) : VIRTUAL_SANDBOX_CUSTOMER_EMAIL;
+            $customer_phone = isset($_GET['phone']) ? sanitize_text_field($_GET['phone']) : VIRTUAL_SANDBOX_CUSTOMER_PHONE;
+            $product_id = intval(isset($_GET['product_id']) ? sanitize_text_field($_GET['product_id']) : VIRTUAL_SANDBOX_PRODUCT_ID);
+            $product_name = isset($_GET['product_name']) ? sanitize_text_field($_GET['product_name']) : VIRTUAL_SANDBOX_PRODUCT_NAME;
+            $offer_id = intval(isset($_GET['offer_id']) ? sanitize_text_field($_GET['offer_id']) : VIRTUAL_SANDBOX_OFFER_ID);
+            $province_name = isset($_GET['province_name']) ? sanitize_text_field($_GET['province_name']) : VIRTUAL_SANDBOX_PROVINCE_NAME;
+            $district_name = isset($_GET['district_name']) ? sanitize_text_field($_GET['district_name']) : VIRTUAL_SANDBOX_DISTRICT_NAME;
+            $ward_name = isset($_GET['ward_name']) ? sanitize_text_field($_GET['ward_name']) : VIRTUAL_SANDBOX_WARD_NAME;
+            $shipping_address = isset($_GET['shipping_address']) ? sanitize_text_field($_GET['shipping_address']) : VIRTUAL_SANDBOX_SHIPPING_ADDRESS;
+            $link = isset($_GET['link']) ? sanitize_text_field($_GET['link']) : VIRTUAL_SANDBOX_LINK;
+            $click_id = isset($_GET['click_id']) ? sanitize_text_field($_GET['click_id']) : "<click-id>";
+            $transaction_id = isset($_GET['transaction_id']) ? sanitize_text_field($_GET['transaction_id']) : "<transaction-id>";
 
-                if (VIRTUAL_SANDBOX_ENABLED_GENERATE_CLICK_ID) {
-                    $click_id = wp_generate_uuid4();
-                    $transaction_id = $click_id;
-                }
+            if (VIRTUAL_SANDBOX_ENABLED_GENERATE_CLICK_ID) {
+                $click_id = wp_generate_uuid4();
+                $transaction_id = $click_id;
+            }
 
-                $order_landing_page = new OrderLandingPage();
-                $address = new AddressLandingPage();
-                $offer = new OfferLandingPage();
-                $landing_page = new LandingPage();
+            $order_landing_page = new OrderLandingPage();
+            $address = new AddressLandingPage();
+            $offer = new OfferLandingPage();
+            $landing_page = new LandingPage();
 
-                $address
-                    ->setProvinceName($province_name)
-                    ->setDistrictName($district_name)
-                    ->setWardName($ward_name)
-                    ->setShippingAddress($shipping_address);
-                $offer
-                    ->setOfferId($offer_id)
-                    ->setProductId($product_id)
-                    ->setProductName($product_name);
+            $address
+                ->setProvinceName($province_name)
+                ->setDistrictName($district_name)
+                ->setWardName($ward_name)
+                ->setShippingAddress($shipping_address);
+            $offer
+                ->setOfferId($offer_id)
+                ->setProductId($product_id)
+                ->setProductName($product_name);
 
-                $landing_page
-                    ->setClickId($click_id)
-                    ->setTransactionId($transaction_id)
-                    ->setLink($link);
+            $landing_page
+                ->setClickId($click_id)
+                ->setTransactionId($transaction_id)
+                ->setLink($link);
 
-                $order_landing_page
-                    ->setCustomerName($customer_name)
-                    ->setCustomerEmail($customer_email)
-                    ->setCustomerPhone($customer_phone)
-                    ->setAddress($address)
-                    ->setOffer($offer)
-                    ->setLandingPage($landing_page);
+            $order_landing_page
+                ->setCustomerName($customer_name)
+                ->setCustomerEmail($customer_email)
+                ->setCustomerPhone($customer_phone)
+                ->setAddress($address)
+                ->setOffer($offer)
+                ->setLandingPage($landing_page);
 
-                $order = $this->create_woocommerce_order($order_landing_page);
-                if ($order) {
-                    if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL) {
-                        $this->redirect_checkout_payment_url($order);
-                    } else {
-                        $this->redirect_2c2p_payment_url($order);
-                    }
+            $order = $this->create_woocommerce_order($order_landing_page);
+            if ($order) {
+                if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL) {
+                    $this->redirect_checkout_payment_url($order);
                 } else {
-                    $this->redirect_page_order_error();
+                    $this->redirect_2c2p_payment_url($order);
                 }
+            } else {
+                $this->redirect_page_order_error();
             }
         }
+        // }
     }
 
     private function create_woocommerce_order(OrderLandingPage $request): WC_Order|bool
