@@ -73,7 +73,7 @@ class OrderLandingPageProvider
 
             $order = $this->create_woocommerce_order($order_landing_page);
             if ($order) {
-                if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL) {
+                if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL === "true") {
                     $this->redirect_checkout_payment_url($order);
                 } else {
                     $this->redirect_2c2p_payment_url($order);
