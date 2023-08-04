@@ -110,21 +110,22 @@ function fun2c2p_backorder_font_icon()
 function fun2c2p_register_awaiting_payment_order_status()
 {
 
-    register_post_status('wc-awaiting-payment', array(
-        'label' => 'Awaiting Payment',
-        'public' => true,
-        'exclude_from_search' => false,
-        'show_in_admin_all_list' => true,
-        'show_in_admin_status_list' => true,
-        'label_count' => _n_noop('Awaiting Payment <span class="count">(%s)</span>', 'Awaiting Payment <span class="count">(%s)</span>')
-    )
+    register_post_status(
+        'wc-awaiting-payment',
+        array(
+            'label' => 'Awaiting Payment',
+            'public' => true,
+            'exclude_from_search' => false,
+            'show_in_admin_all_list' => true,
+            'show_in_admin_status_list' => true,
+            'label_count' => _n_noop('Awaiting Payment <span class="count">(%s)</span>', 'Awaiting Payment <span class="count">(%s)</span>')
+        )
     );
 }
 
 // Add to list of WC Order statuses
 function fun2c2p_add_awaiting_payment_to_order_statuses($order_statuses)
 {
-
     $new_order_statuses = array();
 
     // add new order status after processing
@@ -365,6 +366,8 @@ function fun2c2p_init()
                 }
             }
 
+            error_log("Generate 2c2p form with wc_2c2p_stored_card_token_id = " . $wc_2c2p_stored_card_token_id);
+
             global $woocommerce;
             $order = new WC_Order($order_id);
             $redirect_url = $this->get_return_url($order);
@@ -458,7 +461,7 @@ function fun2c2p_init()
         /* handle the PG response */
         function check_2c2p_response()
         {
-
+            error_log("check_2c2p_response!!!");
             global $woocommerce;
 
             if (isset($_REQUEST['order_id']) && isset($_REQUEST['merchant_id'])) {

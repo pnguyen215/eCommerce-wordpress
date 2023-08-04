@@ -73,16 +73,21 @@ class OrderLandingPageProvider
 
             $order = $this->create_woocommerce_order($order_landing_page);
             if ($order) {
-                if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL === "true") {
-                    $this->redirect_checkout_payment_url($order);
-                } else {
-                    $this->redirect_2c2p_payment_url($order);
-                }
+                $this->redirect_payment($order);
             } else {
                 $this->redirect_page_order_error();
             }
         }
         // }
+    }
+
+    private function redirect_payment(WC_Order $order)
+    {
+        if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL === "true") {
+            $this->redirect_checkout_payment_url($order);
+        } else {
+            $this->redirect_2c2p_payment_url($order);
+        }
     }
 
     private function create_woocommerce_order(OrderLandingPage $request): WC_Order|bool
