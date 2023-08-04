@@ -461,7 +461,6 @@ function fun2c2p_init()
         /* handle the PG response */
         function check_2c2p_response()
         {
-            error_log("check_2c2p_response!!!");
             global $woocommerce;
 
             if (isset($_REQUEST['order_id']) && isset($_REQUEST['merchant_id'])) {

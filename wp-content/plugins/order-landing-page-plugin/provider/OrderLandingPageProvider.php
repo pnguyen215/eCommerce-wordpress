@@ -86,6 +86,13 @@ class OrderLandingPageProvider
         // }
     }
 
+    private function get_checkout_payment_url(WC_Order $order): string
+    {
+        $woocommerce_version = get_option('woocommerce_version');
+        $checkout_payment_url = (version_compare($woocommerce_version, '2.1.0', '>=')) ? $order->get_checkout_payment_url(true) : get_permalink(get_option('woocommerce_pay_page_id'));
+        return $checkout_payment_url;
+    }
+
     private function redirect_payment(WC_Order $order)
     {
         if (is_enabled_redirect_checkout_payment_url()) {
@@ -152,6 +159,7 @@ class OrderLandingPageProvider
         $token = $response["payload"];
         $decodeToken = $this->decode_payment_jwt_token($token);
         if (is_enabled_debug_mode()) {
+            debug("2C2P raw payment token", $raw);
             debug("2C2P payment result", $decodeToken);
         }
         if (is_array($decodeToken) && array_key_exists('webPaymentUrl', $decodeToken)) {
@@ -205,8 +213,19 @@ class OrderLandingPageProvider
                     "email" => $order->get_billing_email(),
                     "mobileNo" => $order->get_billing_phone()
                 )
-            )
+            ),
+            "backendReturnUrl" => "",
+            "frontendReturnUrl" => "",
         );
+        if (is_enabled_redirect_backend_url()) {
+            $payload["backendReturnUrl"] = _2C2P_REDIRECT_BACKEND_URL;
+        }
+        if (is_enabled_redirect_frontend_url()) {
+            $payload["frontendReturnUrl"] = _2C2P_REDIRECT_FRONTEND_URL;
+        }
+        if (is_enabled_debug_mode()) {
+            debug("2C2P payment token request", $payload);
+        }
         $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
         return $jwt;
     }
