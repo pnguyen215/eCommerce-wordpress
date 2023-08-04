@@ -8,6 +8,7 @@ require_once __DIR__ . './../classes/OfferLandingPage.php';
 require_once __DIR__ . './../classes/AddressLandingPage.php';
 require_once __DIR__ . './../../../../conf.php';
 require_once __DIR__ . './../../../../wp-provider/conf-provider.php';
+require_once __DIR__ . './../../../../wp-provider/json-provider.php';
 
 class OrderLandingPageProvider
 {
@@ -72,6 +73,9 @@ class OrderLandingPageProvider
                 ->setOffer($offer)
                 ->setLandingPage($landing_page);
 
+            if (is_enabled_debug_mode()) {
+                to_json_console_pretty($order_landing_page);
+            }
             $order = $this->create_woocommerce_order($order_landing_page);
             if ($order) {
                 $this->redirect_payment($order);
