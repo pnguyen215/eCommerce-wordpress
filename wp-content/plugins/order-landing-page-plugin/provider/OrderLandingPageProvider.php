@@ -7,6 +7,7 @@ require_once __DIR__ . './../classes/LandingPage.php';
 require_once __DIR__ . './../classes/OfferLandingPage.php';
 require_once __DIR__ . './../classes/AddressLandingPage.php';
 require_once __DIR__ . './../../../../conf.php';
+require_once __DIR__ . './../../../../wp-provider/conf-provider.php';
 
 class OrderLandingPageProvider
 {
@@ -38,7 +39,7 @@ class OrderLandingPageProvider
             $click_id = isset($_GET['click_id']) ? sanitize_text_field($_GET['click_id']) : "<click-id>";
             $transaction_id = isset($_GET['transaction_id']) ? sanitize_text_field($_GET['transaction_id']) : "<transaction-id>";
 
-            if (VIRTUAL_SANDBOX_ENABLED_GENERATE_CLICK_ID) {
+            if (is_enabled_generate_click_id()) {
                 $click_id = wp_generate_uuid4();
                 $transaction_id = $click_id;
             }
@@ -83,7 +84,7 @@ class OrderLandingPageProvider
 
     private function redirect_payment(WC_Order $order)
     {
-        if (ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL === "true") {
+        if (is_enabled_redirect_checkout_payment_url()) {
             $this->redirect_checkout_payment_url($order);
         } else {
             $this->redirect_2c2p_payment_url($order);
