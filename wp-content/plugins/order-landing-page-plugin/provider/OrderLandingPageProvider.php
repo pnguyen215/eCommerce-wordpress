@@ -74,7 +74,7 @@ class OrderLandingPageProvider
                 ->setLandingPage($landing_page);
 
             if (is_enabled_debug_mode()) {
-                to_json_console_pretty($order_landing_page);
+                info("Order landing page payload", $order_landing_page);
             }
             $order = $this->create_woocommerce_order($order_landing_page);
             if ($order) {
@@ -151,7 +151,9 @@ class OrderLandingPageProvider
         }
         $token = $response["payload"];
         $decodeToken = $this->decode_payment_jwt_token($token);
-
+        if (is_enabled_debug_mode()) {
+            debug("2C2P payment result", $decodeToken);
+        }
         if (is_array($decodeToken) && array_key_exists('webPaymentUrl', $decodeToken)) {
             $this->redirect_page_payment($decodeToken["webPaymentUrl"]);
         }
