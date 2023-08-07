@@ -235,11 +235,26 @@ class OrderLandingPageProvider
         if (is_enabled_redirect_frontend_url()) {
             $payload["frontendReturnUrl"] = _2C2P_REDIRECT_FRONTEND_URL;
         }
+        if (is_enabled_redirect_notification()) {
+            $redirect_url = $this->get_wp_return_url($order);
+            $payload["backendReturnUrl"] = $redirect_url;
+            $payload["frontendReturnUrl"] = $redirect_url;
+        }
         if (is_enabled_debug_mode()) {
             debug("2C2P payment token request", $payload);
         }
         $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
         return $jwt;
+    }
+
+    private function get_wp_return_url(WC_Order $order = null)
+    {
+        if ($order) {
+            $return_url = $order->get_checkout_order_received_url();
+        } else {
+            $return_url = wc_get_endpoint_url('order-received', '', wc_get_checkout_url());
+        }
+        return apply_filters('woocommerce_get_return_url', $return_url, $order);
     }
 
     private function decode_payment_jwt_token($token): array|null

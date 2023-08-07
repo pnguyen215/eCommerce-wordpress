@@ -25,6 +25,14 @@ function is_enabled_redirect_checkout_payment_url(): bool
     return ENABLED_REDIRECT_CHECKOUT_PAYMENT_URL === "true" ? true : false;
 }
 
+function is_enabled_redirect_notification(): bool
+{
+    if (empty(_2C2P_ENABLED_REDIRECT_NOTIFICATION_DEFAULT) || is_null(_2C2P_ENABLED_REDIRECT_NOTIFICATION_DEFAULT)) {
+        return false;
+    }
+    return _2C2P_ENABLED_REDIRECT_NOTIFICATION_DEFAULT === "true" ? true : false;
+}
+
 function is_enabled_redirect_backend_url(): bool
 {
     return !empty(_2C2P_REDIRECT_BACKEND_URL) && !is_null(_2C2P_REDIRECT_BACKEND_URL);
