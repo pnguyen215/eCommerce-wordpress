@@ -90,6 +90,38 @@ class OrderLandingPageProvider
         // }
     }
 
+    public function process_order_received_event_handler($order_id)
+    {
+        if (is_null($order_id) || empty($order_id)) {
+            return;
+        }
+        if (!intval($order_id)) {
+            warn("(WARN) process order received event trying to parse integer", $order_id);
+            return;
+        }
+        $order = wc_get_order($order_id);
+        if (is_enabled_debug_mode()) {
+            debug("Process order's WooCommerce received event", $order);
+        }
+        if (!$order) {
+            warn("(WARN) process order received event which order not found", $order_id);
+            return;
+        }
+        $token = $this->generate_payment_inquiry_token($order);
+        $response = $this->send_payment_inquiry_request($token);
+        if (!is_array($response) || !array_key_exists('payload', $response)) {
+            error("(ERROR) 2C2P payment inquiry not found", $response);
+            exit;
+        }
+        $token_encoded = $response["payload"];
+        $payload = $this->decode_payment_payload_token($token_encoded);
+        if (is_enabled_debug_mode()) {
+            debug("2C2P raw payment inquiry", $token);
+            debug("2C2P payment inquiry result", $payload);
+        }
+    }
+
+
     private function get_woocommerce_payment_url(WC_Order $order): string
     {
         if (is_null($order)) {
@@ -158,15 +190,15 @@ class OrderLandingPageProvider
 
     private function redirect_2c2p_payment_url(WC_Order $order): void
     {
-        $raw = $this->generate_payment_jwt_token($order);
-        $response = $this->send_payment_jwt_token_request($raw);
+        $raw = $this->generate_payment_order_token($order);
+        $response = $this->send_payment_order_request($raw);
 
         if (!is_array($response) || !array_key_exists('payload', $response)) {
             $this->redirect_page_order_error();
             exit;
         }
         $token = $response["payload"];
-        $decodeToken = $this->decode_payment_jwt_token($token);
+        $decodeToken = $this->decode_payment_payload_token($token);
         if (is_enabled_debug_mode()) {
             debug("2C2P raw payment token", $raw);
             debug("2C2P payment result", $decodeToken);
@@ -206,14 +238,17 @@ class OrderLandingPageProvider
         return null;
     }
 
-    private function generate_payment_jwt_token(WC_Order $order): string
+    private function generate_payment_order_token(WC_Order $order): string
     {
+        if (!$order) {
+            return "";
+        }
         $secret_sha_key = _2C2P_SECRET_SHA_KEY;
-        $merchant_id = _2C2P_MERCHANT_ID;
+        $merchant_id = strval(_2C2P_MERCHANT_ID);
         $payload = array(
             "merchantID" => $merchant_id,
             "order_id" => $order->get_id(),
-            "invoiceNo" => $order->get_id(),
+            "invoiceNo" => strval($order->get_id()),
             "description" => $order->get_billing_first_name(),
             "amount" => $order->get_total(),
             "currencyCode" => $order->get_currency(),
@@ -247,6 +282,25 @@ class OrderLandingPageProvider
         return $jwt;
     }
 
+    private function generate_payment_inquiry_token(WC_Order $order): string
+    {
+        if (!$order) {
+            return "";
+        }
+        $secret_sha_key = _2C2P_SECRET_SHA_KEY;
+        $merchant_id = strval(_2C2P_MERCHANT_ID);
+        $payload = array(
+            "merchantID" => $merchant_id,
+            "invoiceNo" => strval($order->get_id()),
+            "locale" => "en"
+        );
+        if (is_enabled_debug_mode()) {
+            debug("2C2P payment inquiry request", $payload);
+        }
+        $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
+        return $jwt;
+    }
+
     private function get_wp_return_url(WC_Order $order = null)
     {
         if ($order) {
@@ -257,7 +311,7 @@ class OrderLandingPageProvider
         return apply_filters('woocommerce_get_return_url', $return_url, $order);
     }
 
-    private function decode_payment_jwt_token($token): array|null
+    private function decode_payment_payload_token($token): array|null
     {
         if ($token == null || $token == "") {
             return $token;
@@ -271,9 +325,35 @@ class OrderLandingPageProvider
         }
     }
 
-    private function send_payment_jwt_token_request($token): mixed
+    private function send_payment_order_request($token): mixed
     {
         $endpoint = _2C2P_HOST . '/paymentToken';
+
+        $data = array(
+            'payload' => $token,
+        );
+
+        $headers = array(
+            'Content-Type' => 'application/json',
+        );
+
+        $args = array(
+            'headers' => $headers,
+            'body' => json_encode($data),
+        );
+
+        $response = wp_remote_post($endpoint, $args);
+        if (is_wp_error($response)) {
+            return null;
+        }
+        $response_body = wp_remote_retrieve_body($response);
+        $decoded_response = json_decode($response_body, true);
+        return $decoded_response;
+    }
+
+    private function send_payment_inquiry_request($token): mixed
+    {
+        $endpoint = _2C2P_HOST . '/paymentInquiry';
 
         $data = array(
             'payload' => $token,
