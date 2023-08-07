@@ -151,7 +151,7 @@ function fun2c2p_add_awaiting_payment_to_order_statuses($order_statuses)
         // debug("2C2P add awaiting payment to order statuses with order_id", $_REQUEST['order_id']);
         // debug("2C2P add awaiting payment to order statuses with merchant_id", $_REQUEST['merchant_id']);
         // debug("2C2P add awaiting payment to order statuses with args($)", $order_statuses);
-        // debug("2C2P add awaiting payment to order statuses", $new_order_statuses);
+        debug("2C2P add awaiting payment to order statuses", $new_order_statuses);
     }
     return $new_order_statuses;
 }
@@ -390,17 +390,21 @@ function fun2c2p_init()
             $order = new WC_Order($order_id);
             $redirect_url = $this->get_return_url($order);
 
+            if (is_enabled_debug_mode()) {
+                debug("2C2P generation form with redirect_url", $redirect_url);
+            }
+
             if (strcasecmp($this->service_provider, 'money') == 0) {
                 $service_provider = '';
             } else {
                 $service_provider = '2C2P';
             }
 
-            if (is_user_logged_in()) { // Customer is loggedin.
-                $loggedin_user_data = wp_get_current_user();
-                $cust_email = $loggedin_user_data->data->user_email;
+            if (is_user_logged_in()) { // Customer is logged in.
+                $logged_in_user_data = wp_get_current_user();
+                $customer_email = $logged_in_user_data->data->user_email;
             } else {
-                $cust_email = $order->data['billing']['email']; //Guest customer.
+                $customer_email = $order->data['billing']['email']; //Guest customer.
             }
 
             $fixed_description = $this->settings['wc_2c2p_fixed_description'];
@@ -425,7 +429,7 @@ function fun2c2p_init()
                 'order_id' => $order_id,
                 'invoice_no' => $order_id,
                 'amount' => $order->get_total(),
-                'customer_email' => sanitize_email($cust_email),
+                'customer_email' => sanitize_email($customer_email),
                 'stored_card_unique_id' => $wc_2c2p_stored_card_token_id != 0 ? $wc_2c2p_stored_card_token_id : "",
                 'default_lang' => $default_lang
             );

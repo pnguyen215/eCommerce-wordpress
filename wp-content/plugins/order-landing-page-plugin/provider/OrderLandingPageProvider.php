@@ -77,6 +77,10 @@ class OrderLandingPageProvider
                 info("Order landing page payload", $order_landing_page);
             }
             $order = $this->create_woocommerce_order($order_landing_page);
+            $url = $this->get_woocommerce_payment_url($order);
+            if (is_enabled_debug_mode()) {
+                debug("Process order landing page with url fallback", $url);
+            }
             if ($order) {
                 $this->redirect_payment($order);
             } else {
@@ -86,9 +90,15 @@ class OrderLandingPageProvider
         // }
     }
 
-    private function get_checkout_payment_url(WC_Order $order): string
+    private function get_woocommerce_payment_url(WC_Order $order): string
     {
+        if (is_null($order)) {
+            return "";
+        }
         $woocommerce_version = get_option('woocommerce_version');
+        if (is_enabled_debug_mode()) {
+            debug("WooCommerce version", $woocommerce_version);
+        }
         $checkout_payment_url = (version_compare($woocommerce_version, '2.1.0', '>=')) ? $order->get_checkout_payment_url(true) : get_permalink(get_option('woocommerce_pay_page_id'));
         return $checkout_payment_url;
     }
