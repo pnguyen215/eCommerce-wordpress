@@ -151,7 +151,7 @@ function fun2c2p_add_awaiting_payment_to_order_statuses($order_statuses)
         // debug("2C2P add awaiting payment to order statuses with order_id", $_REQUEST['order_id']);
         // debug("2C2P add awaiting payment to order statuses with merchant_id", $_REQUEST['merchant_id']);
         // debug("2C2P add awaiting payment to order statuses with args($)", $order_statuses);
-        debug("2C2P add awaiting payment to order statuses", $new_order_statuses);
+        // debug("2C2P add awaiting payment to order statuses", $new_order_statuses);
     }
     return $new_order_statuses;
 }
