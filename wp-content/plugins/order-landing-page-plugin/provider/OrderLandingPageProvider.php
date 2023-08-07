@@ -95,11 +95,10 @@ class OrderLandingPageProvider
         if (is_null($order)) {
             return "";
         }
-        $woocommerce_version = get_option('woocommerce_version');
         if (is_enabled_debug_mode()) {
-            debug("WooCommerce version", $woocommerce_version);
+            debug("WooCommerce version", get_woo_version());
         }
-        $checkout_payment_url = (version_compare($woocommerce_version, '2.1.0', '>=')) ? $order->get_checkout_payment_url(true) : get_permalink(get_option('woocommerce_pay_page_id'));
+        $checkout_payment_url = (is_new_woo_version_by("2.1.0")) ? $order->get_checkout_payment_url(true) : get_permalink(get_option('woocommerce_pay_page_id'));
         return $checkout_payment_url;
     }
 
@@ -213,7 +212,8 @@ class OrderLandingPageProvider
         $merchant_id = _2C2P_MERCHANT_ID;
         $payload = array(
             "merchantID" => $merchant_id,
-            "invoiceNo" => strval($order->get_order_key()),
+            "order_id" => $order->get_id(),
+            "invoiceNo" => $order->get_id(),
             "description" => $order->get_billing_first_name(),
             "amount" => $order->get_total(),
             "currencyCode" => $order->get_currency(),
@@ -224,6 +224,8 @@ class OrderLandingPageProvider
                     "mobileNo" => $order->get_billing_phone()
                 )
             ),
+            "payment_description" => $order->get_billing_first_name() . " Buyer",
+            "default_lang" => "en",
             "backendReturnUrl" => "",
             "frontendReturnUrl" => "",
         );

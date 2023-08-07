@@ -210,7 +210,7 @@ function fun2c2p_init()
             //Load script's
             add_action('wp_enqueue_scripts', array(&$this, 'wc_2c2p_load_scripts'));
 
-            if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
+            if (is_new_woo_version_by("2.0.0")) {
                 add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(&$this, 'process_admin_options')); //update for woocommerce >2.0
             } else {
                 add_action('woocommerce_update_options_payment_gateways', array(&$this, 'process_admin_options')); // WC-1.6.6
@@ -264,6 +264,9 @@ function fun2c2p_init()
 
         function wc_2c2p_custom_checkout_field_update_order_meta($order_id)
         {
+            if (is_enabled_debug_mode()) {
+                debug("2C2P custom checkout field update order", $_POST['wc_2c2p_stored_card']);
+            }
             if (!isset($_POST['wc_2c2p_stored_card']) && empty($_POST['wc_2c2p_stored_card']))
                 return;
 
@@ -293,7 +296,7 @@ function fun2c2p_init()
 
             $redirect_url = $this->get_return_url($order);
 
-            if (version_compare(WOOCOMMERCE_VERSION, '2.0.0', '>=')) {
+            if (is_new_woo_version_by("2.0.0")) {
                 $redirect_url = add_query_arg('wc-api', get_class($this), $redirect_url);
             }
 
@@ -382,8 +385,8 @@ function fun2c2p_init()
             }
 
             if (is_enabled_debug_mode()) {
-                debug("2C2P generation form with args($order_id)", $order_id);
-                debug("2C2P generation form with wc_2c2p_stored_card_token_id = ", $wc_2c2p_stored_card_token_id);
+                debug("2C2P generation form with order_id($order_id)", $order_id);
+                debug("2C2P generation form with wc_2c2p_stored_card_token_id", $wc_2c2p_stored_card_token_id);
             }
 
             global $woocommerce;
@@ -476,7 +479,7 @@ function fun2c2p_init()
             global $woocommerce;
             $order = new WC_Order($order_id);
 
-            if (version_compare(WOOCOMMERCE_VERSION, '2.1.0', '>=')) { // For WC 2.1.0
+            if (is_new_woo_version_by("2.1.0")) {
                 $checkout_payment_url = $order->get_checkout_payment_url(true);
             } else {
                 $checkout_payment_url = get_permalink(get_option('woocommerce_pay_page_id'));
@@ -601,6 +604,7 @@ function fun2c2p_init()
                         }
                     } catch (Exception $e) {
                         $msg = "Error";
+                        error("(Exception) 2C2P response", $e);
                     }
                 }
 
@@ -613,14 +617,16 @@ function fun2c2p_init()
                     //$redirect_url = get_site_url() . "/cart";
                     $redirect_url = esc_url_raw($order->get_cancel_order_url_raw());
                 }
-                if (version_compare(WOOCOMMERCE_VERSION, '2.1.0', '>=')) { // For WC 2.1.0
+                if (is_new_woo_version_by("2.1.0")) {
                     $checkout_payment_url = $order->get_checkout_payment_url(true);
                 } else {
                     $checkout_payment_url = get_permalink(get_option('woocommerce_pay_page_id'));
                 }
-
+                if (is_enabled_debug_mode()) {
+                    debug("2C2P response with redirect_url", $redirect_url);
+                    debug("2C2P response with checkout_payment_url", $checkout_payment_url);
+                }
                 wp_redirect($redirect_url);
-
                 exit;
             }
         }

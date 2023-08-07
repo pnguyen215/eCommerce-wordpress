@@ -35,4 +35,18 @@ function is_enabled_redirect_frontend_url(): bool
     return !empty(_2C2P_REDIRECT_FRONTEND_URL) && !is_null(_2C2P_REDIRECT_FRONTEND_URL);
 }
 
+function is_new_woo_version_by($version): bool
+{
+    if (is_null($version) || empty($version)) {
+        $version = "2.1.0";
+    }
+    $woocommerce_version = get_woo_version_key();
+    return version_compare($woocommerce_version, $version, '>=') ? true : false;
+}
+
+function get_woo_version_key(): string
+{
+    return get_option('woocommerce_version');
+}
+
 ?>
