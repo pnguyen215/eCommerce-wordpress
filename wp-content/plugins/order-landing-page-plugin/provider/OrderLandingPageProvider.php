@@ -9,6 +9,7 @@ require_once __DIR__ . './../classes/AddressLandingPage.php';
 require_once __DIR__ . './../../../../conf.php';
 require_once __DIR__ . './../../../../wp-provider/conf-provider.php';
 require_once __DIR__ . './../../../../wp-provider/json-provider.php';
+require_once __DIR__ . './../../../../wp-provider/status-provider.php';
 
 class OrderLandingPageProvider
 {
@@ -126,11 +127,18 @@ class OrderLandingPageProvider
     {
         global $woocommerce;
         $success = $this->is_2c2p_response_success($payload);
-        if ($success) {
-            $order->update_status('processing');
-            $order->payment_complete();
-            $order->add_order_note('2C2P payment transaction successful.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_datetime: ' . $payload["transactionDateTime"] . '<br/>approval_code: ' . $payload["approvalCode"]);
-            $woocommerce->cart->empty_cart();
+        try {
+            if ($success) {
+                $order->update_status(get_status_completed());
+                $order->payment_complete();
+                $order->add_order_note('2C2P payment transaction successful.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . $payload["transactionDateTime"] . '<br/>approval_code: ' . $payload["approvalCode"]);
+                $woocommerce->cart->empty_cart();
+            } else {
+                $order->update_status(get_status_failed());
+                $order->add_order_note('2C2P payment transaction failed.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . $payload["transactionDateTime"] . '<br/>approval_code: ' . $payload["approvalCode"] . '<br/>reason: ' . $payload['respDesc']);
+            }
+        } catch (Exception $e) {
+            error("Updatable order woocommerce has an error occurred", $e);
         }
     }
 
