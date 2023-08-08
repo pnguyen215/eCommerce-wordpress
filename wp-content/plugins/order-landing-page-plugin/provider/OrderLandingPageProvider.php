@@ -13,6 +13,11 @@ require_once __DIR__ . './../../../../wp-provider/status-provider.php';
 
 class OrderLandingPageProvider
 {
+    public function __construct()
+    {
+        global $decodeUrls;
+        $decodeUrls = true;
+    }
     public function init()
     {
         add_action('template_redirect', array($this, 'process_order_landing_page'));
@@ -75,12 +80,12 @@ class OrderLandingPageProvider
                 ->setLandingPage($landing_page);
 
             if (is_enabled_debug_mode()) {
-                info("Order landing page payload", $order_landing_page);
+                debugColor("Order landing page payload", $order_landing_page);
             }
             $order = $this->create_woocommerce_order($order_landing_page);
             $url = $this->get_woocommerce_payment_url($order);
             if (is_enabled_debug_mode()) {
-                debug("Process order landing page with url fallback", $url);
+                debugColor("Process order landing page with url fallback", $url);
             }
             if ($order) {
                 $this->redirect_payment($order);
@@ -117,8 +122,8 @@ class OrderLandingPageProvider
         $token_encoded = $response["payload"];
         $payload = $this->decode_payment_payload_token($token_encoded);
         if (is_enabled_debug_mode()) {
-            debug("2C2P raw payment inquiry", $token);
-            debug("2C2P payment inquiry result", $payload);
+            debugColor("2C2P raw payment inquiry", $token);
+            debugColor("2C2P payment inquiry result", $payload);
         }
         $this->update_order_woocommerce($order, $payload);
     }
@@ -138,7 +143,7 @@ class OrderLandingPageProvider
                 $order->add_order_note('2C2P payment transaction failed.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . $payload["transactionDateTime"] . '<br/>approval_code: ' . $payload["approvalCode"] . '<br/>reason: ' . $payload['respDesc']);
             }
         } catch (Exception $e) {
-            error("Updatable order woocommerce has an error occurred", $e);
+            errorColor("Updatable order woocommerce has an error occurred", $e);
         }
     }
 
@@ -148,7 +153,7 @@ class OrderLandingPageProvider
             return "";
         }
         if (is_enabled_debug_mode()) {
-            debug("WooCommerce version", get_woo_version_key());
+            debugColor("WooCommerce version", get_woo_version_key());
         }
         $checkout_payment_url = (is_new_woo_version_by("2.1.0")) ? $order->get_checkout_payment_url(true) : get_permalink(get_option('woocommerce_pay_page_id'));
         return $checkout_payment_url;
