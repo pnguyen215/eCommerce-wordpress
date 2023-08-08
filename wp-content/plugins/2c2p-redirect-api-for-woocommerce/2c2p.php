@@ -38,8 +38,8 @@ function fun2c2p_register_activation_hook()
 
     $loop = new WP_Query($args);
     if (is_enabled_debug_mode()) {
-        debug("2C2P register activation hook with wp_query", $loop);
-        debug("2C2P register activation hook with args", $args);
+        debugColor("2C2P register activation hook with wp_query", $loop);
+        debugColor("2C2P register activation hook with args", $args);
     }
 
     try {
@@ -148,10 +148,8 @@ function fun2c2p_add_awaiting_payment_to_order_statuses($order_statuses)
         }
     }
     if (is_enabled_debug_mode()) {
-        // debug("2C2P add awaiting payment to order statuses with order_id", $_REQUEST['order_id']);
-        // debug("2C2P add awaiting payment to order statuses with merchant_id", $_REQUEST['merchant_id']);
         // debug("2C2P add awaiting payment to order statuses with args($)", $order_statuses);
-        // debug("2C2P add awaiting payment to order statuses", $new_order_statuses);
+        warnColor("2C2P add awaiting payment to order statuses", $new_order_statuses);
     }
     return $new_order_statuses;
 }
@@ -385,8 +383,8 @@ function fun2c2p_init()
             }
 
             if (is_enabled_debug_mode()) {
-                debug("2C2P generation form with order_id($order_id)", $order_id);
-                debug("2C2P generation form with wc_2c2p_stored_card_token_id", $wc_2c2p_stored_card_token_id);
+                debugColor("2C2P generation form with order_id($order_id)", $order_id);
+                debugColor("2C2P generation form with wc_2c2p_stored_card_token_id", $wc_2c2p_stored_card_token_id);
             }
 
             global $woocommerce;
@@ -394,7 +392,7 @@ function fun2c2p_init()
             $redirect_url = $this->get_return_url($order);
 
             if (is_enabled_debug_mode()) {
-                debug("2C2P generation form with redirect_url", $redirect_url);
+                debugColor("2C2P generation form with redirect_url", $redirect_url);
             }
 
             if (strcasecmp($this->service_provider, 'money') == 0) {
@@ -438,8 +436,8 @@ function fun2c2p_init()
             );
 
             if (is_enabled_debug_mode()) {
-                debug("2C2P generation form with payment request", $fun2c2p_args);
-                debug("2C2P generation form with order's WooCommerce", $order);
+                debugColor("2C2P generation form with payment request", $fun2c2p_args);
+                debugColor("2C2P generation form with order's WooCommerce", $order);
             }
 
             $objWC_2C2P_Validation_Helper = new WC_2C2P_Validation_Helper();
@@ -492,8 +490,8 @@ function fun2c2p_init()
         function check_2c2p_response()
         {
             if (is_enabled_debug_mode()) {
-                debug("2C2P response with order_id", $_REQUEST['order_id']);
-                debug("2C2P response with merchant_id", $_REQUEST['merchant_id']);
+                debugColor("2C2P response with order_id", $_REQUEST['order_id']);
+                debugColor("2C2P response with merchant_id", $_REQUEST['merchant_id']);
             }
             global $woocommerce;
 
@@ -623,8 +621,8 @@ function fun2c2p_init()
                     $checkout_payment_url = get_permalink(get_option('woocommerce_pay_page_id'));
                 }
                 if (is_enabled_debug_mode()) {
-                    debug("2C2P response with redirect_url", $redirect_url);
-                    debug("2C2P response with checkout_payment_url", $checkout_payment_url);
+                    debugColor("2C2P response with redirect_url", $redirect_url);
+                    debugColor("2C2P response with checkout_payment_url", $checkout_payment_url);
                 }
                 wp_redirect($redirect_url);
                 exit;
@@ -644,7 +642,7 @@ function fun2c2p_init()
     {
         $data = $_POST['data'];
         if (is_enabled_debug_mode()) {
-            debug("2C2P remove stored card_id", $data);
+            debugColor("2C2P remove stored card_id", $data);
         }
 
         if (!isset($data['token_id']) || !intval($data['token_id'])) {
@@ -655,7 +653,7 @@ function fun2c2p_init()
         $isFounded = false;
         $wc_2c2p_stored_card = get_user_meta(get_current_user_id(), "wc_2c2p_stored_card");
         if (is_enabled_debug_mode()) {
-            debug("2C2P remove stored card_id with wc_2c2p_stored_card", $wc_2c2p_stored_card);
+            debugColor("2C2P remove stored card_id with wc_2c2p_stored_card", $wc_2c2p_stored_card);
         }
 
         foreach ($wc_2c2p_stored_card as $key => $value) {
@@ -681,7 +679,7 @@ function fun2c2p_init()
     function woocommerce_add_gateway_2c2p_gateway($methods)
     {
         if (is_enabled_debug_mode()) {
-            debug("WooCommerce add gateway 2C2P", $methods);
+            debugColor("WooCommerce add gateway 2C2P", $methods);
         }
         $methods[] = 'WC_Gateway_2c2p';
         return $methods;

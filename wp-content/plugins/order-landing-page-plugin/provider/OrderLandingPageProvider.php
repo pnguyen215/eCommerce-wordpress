@@ -153,7 +153,7 @@ class OrderLandingPageProvider
             return "";
         }
         if (is_enabled_debug_mode()) {
-            debugColor("WooCommerce version", get_woo_version_key());
+            infoColor("WooCommerce version", get_woo_version_key());
         }
         $checkout_payment_url = (is_new_woo_version_by("2.1.0")) ? $order->get_checkout_payment_url(true) : get_permalink(get_option('woocommerce_pay_page_id'));
         return $checkout_payment_url;
