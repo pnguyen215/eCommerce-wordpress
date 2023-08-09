@@ -275,8 +275,8 @@ class OrderLandingPageProvider
         $token = $response["payload"];
         $decodeToken = $this->decode_payment_payload_token($token);
         if (is_enabled_debug_mode()) {
-            debug("2C2P raw payment token", $raw);
-            debug("2C2P payment result", $decodeToken);
+            debugColor("2C2P raw payment token", $raw);
+            successColor("2C2P payment result", $decodeToken);
         }
         if (is_array($decodeToken) && array_key_exists('webPaymentUrl', $decodeToken)) {
             $this->redirect_page_payment($decodeToken["webPaymentUrl"]);
