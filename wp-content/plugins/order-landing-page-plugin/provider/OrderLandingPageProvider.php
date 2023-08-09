@@ -10,6 +10,7 @@ require_once __DIR__ . './../../../../conf.php';
 require_once __DIR__ . './../../../../wp-provider/conf-provider.php';
 require_once __DIR__ . './../../../../wp-provider/json-provider.php';
 require_once __DIR__ . './../../../../wp-provider/status-provider.php';
+require_once __DIR__ . './../../../../wp-provider/time-provider.php';
 
 class OrderLandingPageProvider
 {
@@ -142,8 +143,48 @@ class OrderLandingPageProvider
                 $order->update_status(get_status_failed());
                 $order->add_order_note('2C2P payment transaction failed.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . $payload["transactionDateTime"] . '<br/>approval_code: ' . $payload["approvalCode"] . '<br/>reason: ' . $payload['respDesc']);
             }
+            $this->add_meta_fields($order, $payload);
         } catch (Exception $e) {
             errorColor("Updatable order woocommerce has an error occurred", $e);
+        }
+    }
+
+    private function add_meta_fields(WC_Order $order, array $payload): void
+    {
+        try {
+            $order->add_meta_data("wc_2c2p_amount_meta", $payload["amount"]);
+            $order->add_meta_data("wc_2c2p_approval_code_meta", $payload["approvalCode"]);
+            $order->add_meta_data("wc_2c2p_backend_invoice_meta", $payload["referenceNo"]);
+            $order->add_meta_data("wc_2c2p_browser_info_meta", null);
+            $order->add_meta_data("wc_2c2p_channel_response_code_meta", $payload["respCode"]);
+            $order->add_meta_data("wc_2c2p_channel_response_desc_meta", $payload["respDesc"]);
+            $order->add_meta_data("wc_2c2p_currency_code_meta", $payload["currencyCode"]);
+            $order->add_meta_data("wc_2c2p_eci_meta", $payload["eci"]);
+            $order->add_meta_data("wc_2c2p_invoice_no_meta", $payload["invoiceNo"]);
+            $order->add_meta_data("wc_2c2p_ippInterestRate_meta", null);
+            $order->add_meta_data("wc_2c2p_ippInterestType_meta", null);
+            $order->add_meta_data("wc_2c2p_ippMerchantAbsorbRate_meta", null);
+            $order->add_meta_data("wc_2c2p_ippPeriod_meta", null);
+            $order->add_meta_data("wc_2c2p_masked_pan_desc_meta", $payload["cardNo"]);
+            $order->add_meta_data("wc_2c2p_merchant_id_meta", $payload["merchantID"]);
+            $order->add_meta_data("wc_2c2p_order_id_meta", strval($order->get_id()));
+            $order->add_meta_data("wc_2c2p_paid_agent_meta", null);
+            $order->add_meta_data("wc_2c2p_paid_channel_meta", null);
+            $order->add_meta_data("wc_2c2p_payment_channel_meta", null);
+            $order->add_meta_data("wc_2c2p_payment_status_meta", null);
+            $order->add_meta_data("wc_2c2p_recurring_unique_id_meta", null);
+            $order->add_meta_data("wc_2c2p_request_timestamp_meta", null);
+            $order->add_meta_data("wc_2c2p_stored_card_unique_id_meta", null);
+            $order->add_meta_data("wc_2c2p_transaction_datetime_meta", format_date(parse_date_string($payload["transactionDateTime"], 'YmdHis'), 'Y-m-d H:i:s'));
+            $order->add_meta_data("wc_2c2p_transaction_ref_meta", $payload["tranRef"]);
+            $order->add_meta_data("wc_2c2p_user_defined_1_meta", $payload["userDefined1"]);
+            $order->add_meta_data("wc_2c2p_user_defined_2_meta", $payload["userDefined2"]);
+            $order->add_meta_data("wc_2c2p_user_defined_3_meta", $payload["userDefined3"]);
+            $order->add_meta_data("wc_2c2p_user_defined_4_meta", $payload["userDefined4"]);
+            $order->add_meta_data("wc_2c2p_user_defined_5_meta", $payload["userDefined5"]);
+            $order->add_meta_data("wc_2c2p_event_at_meta", format_date(get_current_date_time(), 'Y-m-d H:i:s'));
+        } catch (Exception $e) {
+            errorColor("Addable field on order woocommerce has an error occurred", $e);
         }
     }
 

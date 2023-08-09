@@ -10,6 +10,7 @@ define('DATABASE_USERNAME', $_ENV['DATABASE_USERNAME'] ?? "");
 define('DATABASE_PASSWORD', $_ENV['DATABASE_PASSWORD'] ?? "");
 define('DATABASE_HOST', $_ENV['DATABASE_HOST'] ?? "");
 define('DATABASE_CHARSET', $_ENV['DATABASE_CHARSET'] ?? "");
+define('APP_TIMEZONE', $_ENV['APP_TIMEZONE'] ?? "");
 define('ENABLED_DEBUG_MODE', $_ENV['ENABLED_DEBUG_MODE'] ?? "false");
 define('_2C2P_HOST', $_ENV['_2C2P_HOST'] ?? "");
 define('_2C2P_MERCHANT_ID', $_ENV['_2C2P_MERCHANT_ID'] ?? "");

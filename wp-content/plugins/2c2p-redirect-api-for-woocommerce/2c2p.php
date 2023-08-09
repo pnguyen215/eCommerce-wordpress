@@ -149,7 +149,7 @@ function fun2c2p_add_awaiting_payment_to_order_statuses($order_statuses)
     }
     if (is_enabled_debug_mode()) {
         // debug("2C2P add awaiting payment to order statuses with args($)", $order_statuses);
-        warnColor("2C2P add awaiting payment to order statuses", $new_order_statuses);
+        // warnColor("2C2P add awaiting payment to order statuses", $new_order_statuses);
     }
     return $new_order_statuses;
 }
