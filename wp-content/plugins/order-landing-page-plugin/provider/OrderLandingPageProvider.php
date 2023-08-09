@@ -153,6 +153,7 @@ class OrderLandingPageProvider
     {
         try {
             $order->add_meta_data("wc_2c2p_amount_meta", $payload["amount"]);
+            $order->add_meta_data("wc_2c2p_transaction_amount_meta", strval($payload["fxAmount"]));
             $order->add_meta_data("wc_2c2p_approval_code_meta", $payload["approvalCode"]);
             $order->add_meta_data("wc_2c2p_backend_invoice_meta", $payload["referenceNo"]);
             $order->add_meta_data("wc_2c2p_browser_info_meta", null);
@@ -183,6 +184,7 @@ class OrderLandingPageProvider
             $order->add_meta_data("wc_2c2p_user_defined_4_meta", $payload["userDefined4"]);
             $order->add_meta_data("wc_2c2p_user_defined_5_meta", $payload["userDefined5"]);
             $order->add_meta_data("wc_2c2p_event_at_meta", format_date(get_current_date_time(), 'Y-m-d H:i:s'));
+            $order->save_meta_data();
         } catch (Exception $e) {
             errorColor("Addable field on order woocommerce has an error occurred", $e);
         }

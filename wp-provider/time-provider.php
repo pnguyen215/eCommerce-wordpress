@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . './conf-provider.php';
+require_once __DIR__ . './../wp-provider/conf-provider.php';
 
 // Set default timezone
 date_default_timezone_set(get_app_timezone());
