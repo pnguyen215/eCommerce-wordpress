@@ -152,14 +152,20 @@ class OrderLandingPageProvider
     private function add_meta_fields(WC_Order $order, array $payload): void
     {
         try {
-            $order->add_meta_data("wc_2c2p_amount_meta", $payload["amount"]);
-            $order->add_meta_data("wc_2c2p_transaction_amount_meta", strval($payload["fxAmount"]));
+            $success = $this->is_2c2p_response_success($payload);
+            if ($success) {
+                $order->add_meta_data("wc_2c2p_amount_meta", $payload["fxAmount"]);
+            } else {
+                $order->add_meta_data("wc_2c2p_amount_meta", $payload["amount"]);
+            }
+            $order->add_meta_data("wc_2c2p_transaction_amount_meta", $payload["fxAmount"]);
             $order->add_meta_data("wc_2c2p_approval_code_meta", $payload["approvalCode"]);
             $order->add_meta_data("wc_2c2p_backend_invoice_meta", $payload["referenceNo"]);
             $order->add_meta_data("wc_2c2p_browser_info_meta", null);
             $order->add_meta_data("wc_2c2p_channel_response_code_meta", $payload["respCode"]);
             $order->add_meta_data("wc_2c2p_channel_response_desc_meta", $payload["respDesc"]);
             $order->add_meta_data("wc_2c2p_currency_code_meta", $payload["currencyCode"]);
+            $order->add_meta_data("wc_2c2p_fx_currency_code_meta", $payload["fxCurrencyCode"]);
             $order->add_meta_data("wc_2c2p_eci_meta", $payload["eci"]);
             $order->add_meta_data("wc_2c2p_invoice_no_meta", $payload["invoiceNo"]);
             $order->add_meta_data("wc_2c2p_ippInterestRate_meta", null);
@@ -233,6 +239,7 @@ class OrderLandingPageProvider
             $order->set_billing_state($request->getAddress()->getDistrictName()); // district
             $order->set_billing_country($request->getAddress()->getProvinceName()); // province
             $order->set_billing_address_1($request->getAddress()->getShippingAddress()); // shipping address
+            $order->set_customer_note($request->getAddress()->getShippingAddress());
 
             // shipping address
             $order->set_shipping_city($order->get_billing_city());
