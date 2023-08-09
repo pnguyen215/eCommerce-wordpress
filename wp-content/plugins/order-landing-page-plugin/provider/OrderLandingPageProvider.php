@@ -137,11 +137,11 @@ class OrderLandingPageProvider
             if ($success) {
                 $order->update_status(get_status_completed());
                 $order->payment_complete();
-                $order->add_order_note('2C2P payment transaction successful.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . $payload["transactionDateTime"] . '<br/>approval_code: ' . $payload["approvalCode"]);
+                $order->add_order_note('2C2P payment transaction successful.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . format_date(parse_date_string($payload["transactionDateTime"], 'YmdHis'), 'Y-m-d H:i:s') . '<br/>approval_code: ' . $payload["approvalCode"]);
                 $woocommerce->cart->empty_cart();
             } else {
                 $order->update_status(get_status_failed());
-                $order->add_order_note('2C2P payment transaction failed.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . $payload["transactionDateTime"] . '<br/>approval_code: ' . $payload["approvalCode"] . '<br/>reason: ' . $payload['respDesc']);
+                $order->add_order_note('2C2P payment transaction failed.<br/>order_id: ' . $order->get_id() . '<br/>transaction_ref: ' . $payload["tranRef"] . '<br/>eci: ' . $payload["eci"] . '<br/>transaction_date_time: ' . format_date(parse_date_string($payload["transactionDateTime"], 'YmdHis'), 'Y-m-d H:i:s') . '<br/>approval_code: ' . $payload["approvalCode"] . '<br/>reason: ' . $payload['respDesc']);
             }
             $this->add_meta_fields($order, $payload);
         } catch (Exception $e) {
