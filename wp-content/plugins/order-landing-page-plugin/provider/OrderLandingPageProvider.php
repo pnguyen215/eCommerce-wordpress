@@ -124,7 +124,7 @@ class OrderLandingPageProvider
         $payload = $this->decode_payment_payload_token($token_encoded);
         if (is_enabled_debug_mode()) {
             debugColor("2C2P raw payment inquiry", $token);
-            debugColor("2C2P payment inquiry result", $payload);
+            successColor("2C2P payment inquiry result", $payload);
         }
         $this->update_order_woocommerce($order, $payload);
     }
@@ -370,7 +370,7 @@ class OrderLandingPageProvider
             "locale" => "en"
         );
         if (is_enabled_debug_mode()) {
-            debug("2C2P payment inquiry request", $payload);
+            infoColor("2C2P payment inquiry request", $payload);
         }
         $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
         return $jwt;
