@@ -163,17 +163,17 @@ class OrderLandingPageProvider
             $success = $this->is_2c2p_response_success($payload);
             if ($success) {
                 $order->add_meta_data("wc_2c2p_amount_meta", $payload["fxAmount"]);
+                $order->add_meta_data("wc_2c2p_transaction_amount_meta", $payload["fxAmount"]);
+                $order->add_meta_data("wc_2c2p_fx_currency_code_meta", $payload["fxCurrencyCode"]);
             } else {
                 $order->add_meta_data("wc_2c2p_amount_meta", $payload["amount"]);
             }
-            $order->add_meta_data("wc_2c2p_transaction_amount_meta", $payload["fxAmount"]);
             $order->add_meta_data("wc_2c2p_approval_code_meta", $payload["approvalCode"]);
             $order->add_meta_data("wc_2c2p_backend_invoice_meta", $payload["referenceNo"]);
             $order->add_meta_data("wc_2c2p_browser_info_meta", null);
             $order->add_meta_data("wc_2c2p_channel_response_code_meta", $payload["respCode"]);
             $order->add_meta_data("wc_2c2p_channel_response_desc_meta", $payload["respDesc"]);
             $order->add_meta_data("wc_2c2p_currency_code_meta", $payload["currencyCode"]);
-            $order->add_meta_data("wc_2c2p_fx_currency_code_meta", $payload["fxCurrencyCode"]);
             $order->add_meta_data("wc_2c2p_eci_meta", $payload["eci"]);
             $order->add_meta_data("wc_2c2p_invoice_no_meta", $payload["invoiceNo"]);
             $order->add_meta_data("wc_2c2p_ippInterestRate_meta", null);
