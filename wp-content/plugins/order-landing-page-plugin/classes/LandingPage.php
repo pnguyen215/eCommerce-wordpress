@@ -5,6 +5,10 @@ class LandingPage implements \JsonSerializable
     private $link;
     private $click_id;
     private $transaction_id;
+    private $pid;
+    private $affiliate_id;
+    private $sub_id1;
+    private $tracker_id;
 
     public function setClickId(string $click_id): LandingPage
     {
@@ -37,6 +41,50 @@ class LandingPage implements \JsonSerializable
     public function getLink(): string|null
     {
         return $this->link;
+    }
+
+    public function setPid(string $pid): LandingPage
+    {
+        $this->pid = $pid;
+        return $this;
+    }
+
+    public function getPid(): string|null
+    {
+        return $this->pid;
+    }
+
+    public function setAffiliateId(string $affiliate_id): LandingPage
+    {
+        $this->affiliate_id = $affiliate_id;
+        return $this;
+    }
+
+    public function getAffiliateId(): string
+    {
+        return $this->affiliate_id;
+    }
+
+    public function setTrackerId(int $tracker_id): LandingPage
+    {
+        $this->tracker_id = $tracker_id;
+        return $this;
+    }
+
+    public function getTrackerId(): int|null
+    {
+        return $this->tracker_id;
+    }
+
+    public function setSubId1(string $sub_id1): LandingPage
+    {
+        $this->sub_id1 = $sub_id1;
+        return $this;
+    }
+
+    public function getSubId1(): string|null
+    {
+        return $this->sub_id1;
     }
 
     public function isClickIdTrue(): bool

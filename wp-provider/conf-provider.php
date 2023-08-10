@@ -65,4 +65,12 @@ function get_woo_version_key(): string
     return get_option('woocommerce_version');
 }
 
+function get_virtual_ldp_tracker_id(): int
+{
+    if (empty(VIRTUAL_SANDBOX_TRACKER_ID) || is_null(VIRTUAL_SANDBOX_TRACKER_ID)) {
+        return 102;
+    }
+    return intval(VIRTUAL_SANDBOX_TRACKER_ID);
+}
+
 ?>

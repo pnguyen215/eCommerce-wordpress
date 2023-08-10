@@ -46,6 +46,10 @@ class OrderLandingPageProvider
             $link = isset($_GET['link']) ? sanitize_text_field($_GET['link']) : VIRTUAL_SANDBOX_LINK;
             $click_id = isset($_GET['click_id']) ? sanitize_text_field($_GET['click_id']) : "<click-id>";
             $transaction_id = isset($_GET['transaction_id']) ? sanitize_text_field($_GET['transaction_id']) : "<transaction-id>";
+            $pid = isset($_GET['pid']) ? sanitize_text_field($_GET['pid']) : "<pid>";
+            $affiliate_id = isset($_GET['affiliate_id']) ? sanitize_text_field($_GET['affiliate_id']) : "<affiliate-id>";
+            $sub_id1 = isset($_GET['sub_id1']) ? sanitize_text_field($_GET['sub_id1']) : "<sub-id1>";
+            $tracker_id = isset($_GET['tracker_id']) ? sanitize_text_field($_GET['tracker_id']) : get_virtual_ldp_tracker_id();
 
             if (is_enabled_generate_click_id()) {
                 $click_id = wp_generate_uuid4();
@@ -66,11 +70,14 @@ class OrderLandingPageProvider
                 ->setOfferId($offer_id)
                 ->setProductId($product_id)
                 ->setProductName($product_name);
-
             $landing_page
                 ->setClickId($click_id)
                 ->setTransactionId($transaction_id)
-                ->setLink($link);
+                ->setLink($link)
+                ->setPid($pid)
+                ->setAffiliateId($affiliate_id)
+                ->setTrackerId($tracker_id)
+                ->setSubId1($sub_id1);
 
             $order_landing_page
                 ->setCustomerName($customer_name)
@@ -84,9 +91,10 @@ class OrderLandingPageProvider
                 debugColor("Order landing page payload", $order_landing_page);
             }
             $order = $this->create_woocommerce_order($order_landing_page);
+            $this->add_meta_base_fields($order, $order_landing_page);
             $url = $this->get_woocommerce_payment_url($order);
             if (is_enabled_debug_mode()) {
-                debugColor("Process order landing page with url fallback", $url);
+                warnColor("Process order landing page with url fallback", $url);
             }
             if ($order) {
                 $this->redirect_payment($order);
@@ -196,6 +204,25 @@ class OrderLandingPageProvider
         }
     }
 
+    private function add_meta_base_fields(WC_Order $order, OrderLandingPage $order_ldp): void
+    {
+        try {
+            $order->add_meta_data("wc_ldp_customer_name", $order_ldp->getCustomerName());
+            $order->add_meta_data("wc_ldp_customer_phone", $order_ldp->getCustomerPhone());
+            $order->add_meta_data("wc_ldp_click_id", $order_ldp->getLandingPage()->getClickId());
+            $order->add_meta_data("wc_ldp_offer_id", strval($order_ldp->getOffer()->getOfferId()));
+            $order->add_meta_data("wc_ldp_pid", $order_ldp->getLandingPage()->getPid());
+            $order->add_meta_data("wc_ldp_product_id", strval($order_ldp->getOffer()->getProductId()));
+            $order->add_meta_data("wc_ldp_product_name", $order_ldp->getOffer()->getProductName());
+            $order->add_meta_data("wc_ldp_affiliate_id", $order_ldp->getLandingPage()->getAffiliateId());
+            $order->add_meta_data("wc_ldp_tracker_id", strval($order_ldp->getLandingPage()->getTrackerId()));
+            $order->add_meta_data("wc_ldp_link", $order_ldp->getLandingPage()->getLink());
+            $order->save_meta_data();
+        } catch (Exception $e) {
+            errorColor("Addable base field on order woocommerce has an error occurred", $e);
+        }
+    }
+
     private function get_woocommerce_payment_url(WC_Order $order): string
     {
         if (is_null($order)) {
@@ -228,7 +255,6 @@ class OrderLandingPageProvider
 
             // transaction info
             $order->set_transaction_id($request->getLandingPage()->getClickId());
-            $order->set_billing_postcode($request->getOffer()->getOfferId());
 
             // shipping
             $order->set_shipping_first_name($order->get_billing_first_name());
