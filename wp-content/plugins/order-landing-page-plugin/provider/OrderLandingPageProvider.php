@@ -92,9 +92,8 @@ class OrderLandingPageProvider
             }
             $order = $this->create_woocommerce_order($order_landing_page);
             $this->add_meta_base_fields($order, $order_landing_page);
-            $url = $this->get_woocommerce_payment_url($order);
             if (is_enabled_debug_mode()) {
-                warnColor("Process order landing page with url fallback", $url);
+                warnColor("Process order landing page with url fallback", $this->get_woocommerce_payment_url($order));
             }
             if ($order) {
                 $this->redirect_payment($order);
@@ -199,6 +198,8 @@ class OrderLandingPageProvider
             $order->add_meta_data("wc_2c2p_user_defined_5_meta", $payload["userDefined5"]);
             $order->add_meta_data("wc_2c2p_event_at_meta", format_date(get_current_date_time(), 'Y-m-d H:i:s'));
             $order->save_meta_data();
+            $order->set_transaction_id($payload["tranRef"]);
+            $order->save();
         } catch (Exception $e) {
             errorColor("Addable field on order woocommerce has an error occurred", $e);
         }
@@ -217,6 +218,11 @@ class OrderLandingPageProvider
             $order->add_meta_data("wc_ldp_affiliate_id", $order_ldp->getLandingPage()->getAffiliateId());
             $order->add_meta_data("wc_ldp_tracker_id", strval($order_ldp->getLandingPage()->getTrackerId()));
             $order->add_meta_data("wc_ldp_link", $order_ldp->getLandingPage()->getLink());
+            if (is_enabled_redirect_checkout_payment_url()) {
+                $order->add_meta_data("wc_ldp_direction", "inward");
+            } else {
+                $order->add_meta_data("wc_ldp_direction", "outward");
+            }
             $order->save_meta_data();
         } catch (Exception $e) {
             errorColor("Addable base field on order woocommerce has an error occurred", $e);
@@ -275,9 +281,8 @@ class OrderLandingPageProvider
 
             $quantity = 1;
             $product = $this->find_products_by_sku($request->getOffer()->getProductId());
-
             if ($product) {
-                $order->add_product($product, $quantity);
+                $order->add_product($product, $quantity); // args = product, quantity
             }
 
             // Calculate totals and save the order 
