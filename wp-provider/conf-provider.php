@@ -73,4 +73,12 @@ function get_virtual_ldp_tracker_id(): int
     return intval(VIRTUAL_SANDBOX_TRACKER_ID);
 }
 
+function is_enabled_using_woo_product_id(): bool
+{
+    if (empty(ENABLED_USING_WOO_PRODUCT_ID_REPLACED) || is_null(ENABLED_USING_WOO_PRODUCT_ID_REPLACED)) {
+        return false;
+    }
+    return ENABLED_USING_WOO_PRODUCT_ID_REPLACED === "true" ? true : false;
+}
+
 ?>

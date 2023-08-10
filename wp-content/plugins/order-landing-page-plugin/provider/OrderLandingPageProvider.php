@@ -223,6 +223,16 @@ class OrderLandingPageProvider
             } else {
                 $order->add_meta_data("wc_ldp_direction", "outward");
             }
+            if (is_enabled_using_woo_product_id()) {
+                $product = $this->find_products_by_id($order_ldp->getOffer()->getProductId());
+            } else {
+                $product = $this->find_products_by_sku($order_ldp->getOffer()->getProductId());
+            }
+            $order->add_meta_data("wc_ldp_quantity", strval($product->get_menu_order()));
+            if (is_enabled_debug_mode()) {
+                warnColor("Product stock quantity", $product->get_stock_quantity());
+                debugColor("Product attributes", $product->get_menu_order());
+            }
             $order->save_meta_data();
         } catch (Exception $e) {
             errorColor("Addable base field on order woocommerce has an error occurred", $e);
@@ -271,7 +281,7 @@ class OrderLandingPageProvider
             $order->set_billing_state($request->getAddress()->getDistrictName()); // district
             $order->set_billing_country($request->getAddress()->getProvinceName()); // province
             $order->set_billing_address_1($request->getAddress()->getShippingAddress()); // shipping address
-            $order->set_customer_note($request->getAddress()->getShippingAddress());
+            $order->set_customer_note($request->getAddress()->getShippingAddress()); // shipping address
 
             // shipping address
             $order->set_shipping_city($order->get_billing_city());
@@ -280,11 +290,14 @@ class OrderLandingPageProvider
             $order->set_shipping_address_1($order->get_billing_address_1());
 
             $quantity = 1;
-            $product = $this->find_products_by_sku($request->getOffer()->getProductId());
+            if (is_enabled_using_woo_product_id()) {
+                $product = $this->find_products_by_id($request->getOffer()->getProductId());
+            } else {
+                $product = $this->find_products_by_sku($request->getOffer()->getProductId());
+            }
             if ($product) {
                 $order->add_product($product, $quantity); // args = product, quantity
             }
-
             // Calculate totals and save the order 
             $order->calculate_totals();
             $order->save();
@@ -342,6 +355,12 @@ class OrderLandingPageProvider
             return $product;
         }
         return null;
+    }
+
+    private function find_products_by_id($id): WC_Product|bool|null
+    {
+        $product = wc_get_product($id);
+        return $product;
     }
 
     private function generate_payment_order_token(WC_Order $order): string
