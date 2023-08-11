@@ -81,4 +81,14 @@ function is_enabled_using_woo_product_id(): bool
     return ENABLED_USING_WOO_PRODUCT_ID_REPLACED === "true" ? true : false;
 }
 
+function get_ldp_direction_inward(): string
+{
+    return "inward";
+}
+
+function get_ldp_direction_outward(): string
+{
+    return "outward";
+}
+
 ?>

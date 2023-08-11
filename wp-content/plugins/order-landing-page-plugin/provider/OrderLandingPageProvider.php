@@ -50,6 +50,9 @@ class OrderLandingPageProvider
             $affiliate_id = isset($_GET['affiliate_id']) ? sanitize_text_field($_GET['affiliate_id']) : "<affiliate-id>";
             $sub_id1 = isset($_GET['sub_id1']) ? sanitize_text_field($_GET['sub_id1']) : "<sub-id1>";
             $tracker_id = isset($_GET['tracker_id']) ? sanitize_text_field($_GET['tracker_id']) : get_virtual_ldp_tracker_id();
+            $province_id = intval(isset($_GET['province_id']) ? sanitize_text_field($_GET['province_id']) : VIRTUAL_SANDBOX_PROVINCE_ID);
+            $district_id = intval(isset($_GET['district_id']) ? sanitize_text_field($_GET['district_id']) : VIRTUAL_SANDBOX_DISTRICT_ID);
+            $ward_id = intval(isset($_GET['ward_id']) ? sanitize_text_field($_GET['ward_id']) : VIRTUAL_SANDBOX_WARD_ID);
 
             if (is_enabled_generate_click_id()) {
                 $click_id = wp_generate_uuid4();
@@ -65,7 +68,10 @@ class OrderLandingPageProvider
                 ->setProvinceName($province_name)
                 ->setDistrictName($district_name)
                 ->setWardName($ward_name)
-                ->setShippingAddress($shipping_address);
+                ->setShippingAddress($shipping_address)
+                ->setProvinceId($province_id)
+                ->setDistrictId($district_id)
+                ->setWardId($ward_id);
             $offer
                 ->setOfferId($offer_id)
                 ->setProductId($product_id)
@@ -94,6 +100,7 @@ class OrderLandingPageProvider
             $this->add_meta_base_fields($order, $order_landing_page);
             if (is_enabled_debug_mode()) {
                 warnColor("Process order landing page with url fallback", $this->get_woocommerce_payment_url($order));
+                debugColor("Order WooCommerce submitted", $order->get_data());
             }
             if ($order) {
                 $this->redirect_payment($order);
@@ -218,10 +225,19 @@ class OrderLandingPageProvider
             $order->add_meta_data("wc_ldp_affiliate_id", $order_ldp->getLandingPage()->getAffiliateId());
             $order->add_meta_data("wc_ldp_tracker_id", strval($order_ldp->getLandingPage()->getTrackerId()));
             $order->add_meta_data("wc_ldp_link", $order_ldp->getLandingPage()->getLink());
+            if ($order_ldp->getAddress()->getProvinceId() > 0) {
+                $order->add_meta_data("wc_ldp_province_id", strval($order_ldp->getAddress()->getProvinceId()));
+            }
+            if ($order_ldp->getAddress()->getDistrictId() > 0) {
+                $order->add_meta_data("wc_ldp_district_id", strval($order_ldp->getAddress()->getDistrictId()));
+            }
+            if ($order_ldp->getAddress()->getWardId() > 0) {
+                $order->add_meta_data("wc_ldp_ward_id", strval($order_ldp->getAddress()->getWardId()));
+            }
             if (is_enabled_redirect_checkout_payment_url()) {
-                $order->add_meta_data("wc_ldp_direction", "inward");
+                $order->add_meta_data("wc_ldp_direction", get_ldp_direction_inward());
             } else {
-                $order->add_meta_data("wc_ldp_direction", "outward");
+                $order->add_meta_data("wc_ldp_direction", get_ldp_direction_outward());
             }
             if (is_enabled_using_woo_product_id()) {
                 $product = $this->find_products_by_id($order_ldp->getOffer()->getProductId());
