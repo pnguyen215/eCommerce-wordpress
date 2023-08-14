@@ -244,7 +244,9 @@ class OrderLandingPageProvider
             } else {
                 $product = $this->find_products_by_sku($order_ldp->getOffer()->getProductId());
             }
-            $order->add_meta_data("wc_ldp_quantity", strval($product->get_menu_order()));
+            if ($product) {
+                $order->add_meta_data("wc_ldp_quantity", $product->get_menu_order());
+            }
             if (is_enabled_debug_mode()) {
                 warnColor("Product stock quantity", $product->get_stock_quantity());
                 debugColor("Product attributes", $product->get_menu_order());
