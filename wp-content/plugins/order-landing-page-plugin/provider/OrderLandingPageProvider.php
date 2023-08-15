@@ -220,7 +220,6 @@ class OrderLandingPageProvider
             $order->add_meta_data("wc_ldp_click_id", $order_ldp->getLandingPage()->getClickId());
             $order->add_meta_data("wc_ldp_offer_id", strval($order_ldp->getOffer()->getOfferId()));
             $order->add_meta_data("wc_ldp_pid", $order_ldp->getLandingPage()->getPid());
-            $order->add_meta_data("wc_ldp_product_id", strval($order_ldp->getOffer()->getProductId()));
             $order->add_meta_data("wc_ldp_product_name", $order_ldp->getOffer()->getProductName());
             $order->add_meta_data("wc_ldp_affiliate_id", $order_ldp->getLandingPage()->getAffiliateId());
             $order->add_meta_data("wc_ldp_tracker_id", strval($order_ldp->getLandingPage()->getTrackerId()));
@@ -245,11 +244,17 @@ class OrderLandingPageProvider
                 $product = $this->find_products_by_sku($order_ldp->getOffer()->getProductId());
             }
             if ($product) {
-                $order->add_meta_data("wc_ldp_quantity", $product->get_menu_order());
+                if (is_enabled_using_woo_product_id()) {
+                    $order->add_meta_data("wc_ldp_product_id", $product->get_sku());
+                } else {
+                    $order->add_meta_data("wc_ldp_product_id", strval($order_ldp->getOffer()->getProductId()));
+                }
+                $order->add_meta_data("wc_ldp_salable_product_id", strval($product->get_id()));
+                $order->add_meta_data("wc_ldp_quantity", strval($product->get_menu_order()));
             }
             if (is_enabled_debug_mode()) {
                 warnColor("Product stock quantity", $product->get_stock_quantity());
-                debugColor("Product attributes", $product->get_menu_order());
+                debugColor("Product attributes menu order (as salable quantity)", $product->get_menu_order());
             }
             $order->save_meta_data();
         } catch (Exception $e) {
