@@ -11,6 +11,7 @@ require_once __DIR__ . './../../../../wp-provider/conf-provider.php';
 require_once __DIR__ . './../../../../wp-provider/json-provider.php';
 require_once __DIR__ . './../../../../wp-provider/status-provider.php';
 require_once __DIR__ . './../../../../wp-provider/time-provider.php';
+require_once __DIR__ . './../../../../wp-provider/string-provider.php';
 
 class OrderLandingPageProvider
 {
@@ -245,7 +246,8 @@ class OrderLandingPageProvider
             }
             if ($product) {
                 if (is_enabled_using_woo_product_id()) {
-                    $order->add_meta_data("wc_ldp_product_id", $product->get_sku());
+                    $list = split_by($product->get_sku(), get_symbol_sku());
+                    $order->add_meta_data("wc_ldp_product_id", $list[0]);
                 } else {
                     $order->add_meta_data("wc_ldp_product_id", strval($order_ldp->getOffer()->getProductId()));
                 }

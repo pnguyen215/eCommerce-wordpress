@@ -91,4 +91,9 @@ function get_ldp_direction_outward(): string
     return "outward";
 }
 
+function get_symbol_sku(): string
+{
+    return "-";
+}
+
 ?>
