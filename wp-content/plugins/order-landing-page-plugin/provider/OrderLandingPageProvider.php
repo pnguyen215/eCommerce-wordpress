@@ -43,7 +43,7 @@ class OrderLandingPageProvider
             $province_name = isset($_GET['province_name']) ? sanitize_text_field($_GET['province_name']) : VIRTUAL_SANDBOX_PROVINCE_NAME;
             $district_name = isset($_GET['district_name']) ? sanitize_text_field($_GET['district_name']) : VIRTUAL_SANDBOX_DISTRICT_NAME;
             $ward_name = isset($_GET['ward_name']) ? sanitize_text_field($_GET['ward_name']) : VIRTUAL_SANDBOX_WARD_NAME;
-            $shipping_address = isset($_GET['shipping_address']) ? sanitize_text_field($_GET['shipping_address']) : VIRTUAL_SANDBOX_SHIPPING_ADDRESS;
+            $shipping_address = isset($_GET['address']) ? sanitize_text_field($_GET['address']) : VIRTUAL_SANDBOX_SHIPPING_ADDRESS;
             $link = isset($_GET['link']) ? sanitize_text_field($_GET['link']) : VIRTUAL_SANDBOX_LINK;
             $click_id = isset($_GET['click_id']) ? sanitize_text_field($_GET['click_id']) : "<click-id>";
             $transaction_id = isset($_GET['transaction_id']) ? sanitize_text_field($_GET['transaction_id']) : "<transaction-id>";
