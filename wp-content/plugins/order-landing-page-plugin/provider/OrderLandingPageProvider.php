@@ -254,10 +254,6 @@ class OrderLandingPageProvider
                 $order->add_meta_data("wc_ldp_salable_product_id", strval($product->get_id()));
                 $order->add_meta_data("wc_ldp_quantity", strval($product->get_menu_order()));
             }
-            if (is_enabled_debug_mode()) {
-                warnColor("Product stock quantity", $product->get_stock_quantity());
-                debugColor("Product attributes menu order (as salable quantity)", $product->get_menu_order());
-            }
             $order->save_meta_data();
         } catch (Exception $e) {
             errorColor("Addable base field on order woocommerce has an error occurred", $e);
