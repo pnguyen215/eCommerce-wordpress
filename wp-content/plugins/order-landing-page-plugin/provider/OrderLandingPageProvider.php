@@ -225,6 +225,9 @@ class OrderLandingPageProvider
             $order->add_meta_data("wc_ldp_affiliate_id", $order_ldp->getLandingPage()->getAffiliateId());
             $order->add_meta_data("wc_ldp_tracker_id", strval($order_ldp->getLandingPage()->getTrackerId()));
             $order->add_meta_data("wc_ldp_link", $order_ldp->getLandingPage()->getLink());
+            $order->add_meta_data("wc_ldp_province_name", $order_ldp->getAddress()->getProvinceName());
+            $order->add_meta_data("wc_ldp_district_name", $order_ldp->getAddress()->getDistrictName());
+            $order->add_meta_data("wc_ldp_ward_name", $order_ldp->getAddress()->getWardName());
             if ($order_ldp->getAddress()->getProvinceId() > 0) {
                 $order->add_meta_data("wc_ldp_province_id", strval($order_ldp->getAddress()->getProvinceId()));
             }
