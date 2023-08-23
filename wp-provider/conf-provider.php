@@ -96,4 +96,9 @@ function get_symbol_sku(): string
     return "-";
 }
 
+function get_redirect_link_thank_you(): string
+{
+    return empty(REDIRECT_LINK_THANK_YOU) && is_null(REDIRECT_LINK_THANK_YOU) ? "" : REDIRECT_LINK_THANK_YOU;
+}
+
 ?>
