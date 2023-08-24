@@ -21,6 +21,7 @@ interface _2C2PGateway
     public function generate_payment_inquiry_token(WC_Order $order): string;
     public function generate_payment_order_token(WC_Order $order): string;
     public function get_wp_return_url(WC_Order $order = null): mixed;
+    public function send_card_token_information(string $token): mixed;
 }
 
 class _2C2PService implements _2C2PGateway
@@ -366,7 +367,8 @@ class _2C2PService implements _2C2PGateway
                 "userInfo" => array(
                     "name" => $order->get_billing_first_name(),
                     "email" => $order->get_billing_email(),
-                    "mobileNo" => $order->get_billing_phone()
+                    "mobileNo" => $order->get_billing_phone(),
+                    "currencyCode" => $order->get_currency(),
                 )
             ),
             "payment_description" => $order->get_billing_first_name() . " Buyer",
@@ -400,6 +402,32 @@ class _2C2PService implements _2C2PGateway
             $return_url = wc_get_endpoint_url('order-received', '', wc_get_checkout_url());
         }
         return apply_filters('woocommerce_get_return_url', $return_url, $order);
+    }
+
+    public function send_card_token_information(string $token): mixed
+    {
+        $endpoint = _2C2P_HOST . '/cardtokeninfo';
+
+        $data = array(
+            'payload' => $token,
+        );
+
+        $headers = array(
+            'Content-Type' => 'application/json',
+        );
+
+        $args = array(
+            'headers' => $headers,
+            'body' => json_encode($data),
+        );
+
+        $response = wp_remote_post($endpoint, $args);
+        if (is_wp_error($response)) {
+            return null;
+        }
+        $response_body = wp_remote_retrieve_body($response);
+        $decoded_response = json_decode($response_body, true);
+        return $decoded_response;
     }
 }
 
