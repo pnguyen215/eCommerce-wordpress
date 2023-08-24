@@ -101,4 +101,29 @@ function get_redirect_link_thank_you(): string
     return empty(REDIRECT_LINK_THANK_YOU) && is_null(REDIRECT_LINK_THANK_YOU) ? "" : REDIRECT_LINK_THANK_YOU;
 }
 
+function get_virtual_sandbox_province_id(): int
+{
+    if (empty(VIRTUAL_SANDBOX_PROVINCE_ID) || is_null(VIRTUAL_SANDBOX_PROVINCE_ID)) {
+        return 0;
+    }
+    return intval(VIRTUAL_SANDBOX_PROVINCE_ID);
+}
+
+function get_virtual_sandbox_district_id(): int
+{
+    if (empty(VIRTUAL_SANDBOX_DISTRICT_ID) || is_null(VIRTUAL_SANDBOX_DISTRICT_ID)) {
+        return 0;
+    }
+    return intval(VIRTUAL_SANDBOX_DISTRICT_ID);
+}
+
+function get_virtual_sandbox_ward_id(): int
+{
+    if (empty(VIRTUAL_SANDBOX_WARD_ID) || is_null(VIRTUAL_SANDBOX_WARD_ID)) {
+        return 0;
+    }
+    return intval(VIRTUAL_SANDBOX_WARD_ID);
+}
+
+
 ?>

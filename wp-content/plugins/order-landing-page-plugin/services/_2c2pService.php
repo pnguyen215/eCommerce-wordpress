@@ -1,10 +1,26 @@
 <?php
+use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
+
+require_once __DIR__ . './../../../../conf.php';
+require_once __DIR__ . './../../../../wp-provider/conf-provider.php';
+require_once __DIR__ . './../../../../wp-provider/json-provider.php';
+require_once __DIR__ . './../../../../wp-provider/status-provider.php';
+require_once __DIR__ . './../../../../wp-provider/time-provider.php';
+require_once __DIR__ . './../../../../wp-provider/string-provider.php';
+
 
 interface _2C2PGateway
 {
     public function is_2c2p_response_success($payload): bool;
     public function get_2c2p_response_codes(): array;
     public function of_2c2p_response_description(string $code): string;
+    public function send_payment_inquiry_request($token): mixed;
+    public function send_payment_order_request($token): mixed;
+    public function decode_payment_payload_token($token): array|null;
+    public function generate_payment_inquiry_token(WC_Order $order): string;
+    public function generate_payment_order_token(WC_Order $order): string;
+    public function get_wp_return_url(WC_Order $order = null): mixed;
 }
 
 class _2C2PService implements _2C2PGateway
@@ -245,6 +261,145 @@ class _2C2PService implements _2C2PGateway
     public function of_2c2p_response_description(string $code): string
     {
         return $this->get_2c2p_response_codes()[$code];
+    }
+
+    public function send_payment_inquiry_request($token): mixed
+    {
+        $endpoint = _2C2P_HOST . '/paymentInquiry';
+
+        $data = array(
+            'payload' => $token,
+        );
+
+        $headers = array(
+            'Content-Type' => 'application/json',
+        );
+
+        $args = array(
+            'headers' => $headers,
+            'body' => json_encode($data),
+        );
+
+        $response = wp_remote_post($endpoint, $args);
+        if (is_wp_error($response)) {
+            return null;
+        }
+        $response_body = wp_remote_retrieve_body($response);
+        $decoded_response = json_decode($response_body, true);
+        return $decoded_response;
+    }
+
+    public function send_payment_order_request($token): mixed
+    {
+        $endpoint = _2C2P_HOST . '/paymentToken';
+
+        $data = array(
+            'payload' => $token,
+        );
+
+        $headers = array(
+            'Content-Type' => 'application/json',
+        );
+
+        $args = array(
+            'headers' => $headers,
+            'body' => json_encode($data),
+        );
+
+        $response = wp_remote_post($endpoint, $args);
+        if (is_wp_error($response)) {
+            return null;
+        }
+        $response_body = wp_remote_retrieve_body($response);
+        $decoded_response = json_decode($response_body, true);
+        return $decoded_response;
+    }
+
+    public function decode_payment_payload_token($token): array|null
+    {
+        if (empty($token) || is_null(($token))) {
+            return $token;
+        }
+        try {
+            $decodedPayload = JWT::decode($token, new Key(_2C2P_SECRET_SHA_KEY, 'HS256'));
+            $decoded_array = (array) $decodedPayload;
+            return $decoded_array;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    public function generate_payment_inquiry_token(WC_Order $order): string
+    {
+        if (!$order) {
+            return "";
+        }
+        $secret_sha_key = _2C2P_SECRET_SHA_KEY;
+        $merchant_id = strval(_2C2P_MERCHANT_ID);
+        $payload = array(
+            "merchantID" => $merchant_id,
+            "invoiceNo" => strval($order->get_id()),
+            "locale" => "en"
+        );
+        if (is_enabled_debug_mode()) {
+            infoColor("2C2P payment inquiry request", $payload);
+        }
+        $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
+        return $jwt;
+    }
+
+    public function generate_payment_order_token(WC_Order $order): string
+    {
+        if (!$order) {
+            return "";
+        }
+        $secret_sha_key = _2C2P_SECRET_SHA_KEY;
+        $merchant_id = strval(_2C2P_MERCHANT_ID);
+        $payload = array(
+            "merchantID" => $merchant_id,
+            "order_id" => $order->get_id(),
+            "invoiceNo" => strval($order->get_id()),
+            "description" => $order->get_billing_first_name(),
+            "amount" => $order->get_total(),
+            "currencyCode" => $order->get_currency(),
+            "uiParams" => array(
+                "userInfo" => array(
+                    "name" => $order->get_billing_first_name(),
+                    "email" => $order->get_billing_email(),
+                    "mobileNo" => $order->get_billing_phone()
+                )
+            ),
+            "payment_description" => $order->get_billing_first_name() . " Buyer",
+            "default_lang" => "en",
+            "backendReturnUrl" => "",
+            "frontendReturnUrl" => "",
+        );
+        if (is_enabled_redirect_backend_url()) {
+            $payload["backendReturnUrl"] = _2C2P_REDIRECT_BACKEND_URL;
+        }
+        if (is_enabled_redirect_frontend_url()) {
+            $payload["frontendReturnUrl"] = _2C2P_REDIRECT_FRONTEND_URL;
+        }
+        if (is_enabled_redirect_notification()) {
+            $redirect_url = $this->get_wp_return_url($order);
+            $payload["backendReturnUrl"] = $redirect_url;
+            $payload["frontendReturnUrl"] = $redirect_url;
+        }
+        if (is_enabled_debug_mode()) {
+            debug("2C2P payment token request", $payload);
+        }
+        $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
+        return $jwt;
+    }
+
+    public function get_wp_return_url(WC_Order $order = null): mixed
+    {
+        if ($order) {
+            $return_url = $order->get_checkout_order_received_url();
+        } else {
+            $return_url = wc_get_endpoint_url('order-received', '', wc_get_checkout_url());
+        }
+        return apply_filters('woocommerce_get_return_url', $return_url, $order);
     }
 }
 

@@ -1,6 +1,4 @@
 <?php
-use \Firebase\JWT\JWT;
-use \Firebase\JWT\Key;
 
 require_once __DIR__ . './../classes/OrderLandingPage.php';
 require_once __DIR__ . './../classes/LandingPage.php';
@@ -13,6 +11,7 @@ require_once __DIR__ . './../../../../wp-provider/status-provider.php';
 require_once __DIR__ . './../../../../wp-provider/time-provider.php';
 require_once __DIR__ . './../../../../wp-provider/string-provider.php';
 require_once __DIR__ . './../services/_2c2pService.php';
+
 
 class OrderLandingPageProvider
 {
@@ -30,7 +29,6 @@ class OrderLandingPageProvider
 
     public function process_order_landing_page()
     {
-        // if (is_page('custom-order-form')) {
         if (
             isset($_GET['name']) &&
             isset($_GET['email']) &&
@@ -53,10 +51,10 @@ class OrderLandingPageProvider
             $pid = isset($_GET['pid']) ? sanitize_text_field($_GET['pid']) : "<pid>";
             $affiliate_id = isset($_GET['affiliate_id']) ? sanitize_text_field($_GET['affiliate_id']) : "<affiliate-id>";
             $sub_id1 = isset($_GET['sub_id1']) ? sanitize_text_field($_GET['sub_id1']) : "<sub-id1>";
-            $tracker_id = isset($_GET['tracker_id']) ? sanitize_text_field($_GET['tracker_id']) : get_virtual_ldp_tracker_id();
-            $province_id = intval(isset($_GET['province_id']) ? sanitize_text_field($_GET['province_id']) : VIRTUAL_SANDBOX_PROVINCE_ID);
-            $district_id = intval(isset($_GET['district_id']) ? sanitize_text_field($_GET['district_id']) : VIRTUAL_SANDBOX_DISTRICT_ID);
-            $ward_id = intval(isset($_GET['ward_id']) ? sanitize_text_field($_GET['ward_id']) : VIRTUAL_SANDBOX_WARD_ID);
+            $tracker_id = intval(isset($_GET['tracker_id']) ? sanitize_text_field($_GET['tracker_id']) : get_virtual_ldp_tracker_id());
+            $province_id = intval(isset($_GET['province_id']) ? sanitize_text_field($_GET['province_id']) : get_virtual_sandbox_province_id());
+            $district_id = intval(isset($_GET['district_id']) ? sanitize_text_field($_GET['district_id']) : get_virtual_sandbox_district_id());
+            $ward_id = intval(isset($_GET['ward_id']) ? sanitize_text_field($_GET['ward_id']) : get_virtual_sandbox_ward_id());
 
             if (is_enabled_generate_click_id()) {
                 $click_id = wp_generate_uuid4();
@@ -112,7 +110,6 @@ class OrderLandingPageProvider
                 $this->redirect_page_order_error();
             }
         }
-        // }
     }
 
     public function process_order_received_event_handler($order_id)
@@ -132,14 +129,14 @@ class OrderLandingPageProvider
             warn("(WARN) process order received event which order not found", $order_id);
             return;
         }
-        $token = $this->generate_payment_inquiry_token($order);
-        $response = $this->send_payment_inquiry_request($token);
+        $token = $this->_2c2pService->generate_payment_inquiry_token($order);
+        $response = $this->_2c2pService->send_payment_inquiry_request($token);
         if (!is_array($response) || !array_key_exists('payload', $response)) {
             error("(ERROR) 2C2P payment inquiry not found", $response);
             exit;
         }
         $token_encoded = $response["payload"];
-        $payload = $this->decode_payment_payload_token($token_encoded);
+        $payload = $this->_2c2pService->decode_payment_payload_token($token_encoded);
         if (is_enabled_debug_mode()) {
             debugColor("2C2P raw payment inquiry", $token);
             successColor("2C2P payment inquiry result", $payload);
@@ -150,7 +147,7 @@ class OrderLandingPageProvider
     private function update_order_woocommerce(WC_Order $order, array $payload)
     {
         global $woocommerce;
-        $success = $this->is_2c2p_response_success($payload);
+        $success = $this->_2c2pService->is_2c2p_response_success($payload);
         try {
             if ($success) {
                 $order->update_status(get_status_completed());
@@ -170,7 +167,7 @@ class OrderLandingPageProvider
     private function add_meta_fields(WC_Order $order, array $payload): void
     {
         try {
-            $success = $this->is_2c2p_response_success($payload);
+            $success = $this->_2c2pService->is_2c2p_response_success($payload);
             if ($success) {
                 $order->add_meta_data("wc_2c2p_amount_meta", $payload["fxAmount"]);
                 $order->add_meta_data("wc_2c2p_transaction_amount_meta", $payload["fxAmount"]);
@@ -336,15 +333,15 @@ class OrderLandingPageProvider
 
     private function redirect_2c2p_payment_url(WC_Order $order): void
     {
-        $raw = $this->generate_payment_order_token($order);
-        $response = $this->send_payment_order_request($raw);
+        $raw = $this->_2c2pService->generate_payment_order_token($order);
+        $response = $this->_2c2pService->send_payment_order_request($raw);
 
         if (!is_array($response) || !array_key_exists('payload', $response)) {
             $this->redirect_page_order_error();
             exit;
         }
         $token = $response["payload"];
-        $decodeToken = $this->decode_payment_payload_token($token);
+        $decodeToken = $this->_2c2pService->decode_payment_payload_token($token);
         if (is_enabled_debug_mode()) {
             debugColor("2C2P raw payment token", $raw);
             successColor("2C2P payment result", $decodeToken);
@@ -388,155 +385,5 @@ class OrderLandingPageProvider
     {
         $product = wc_get_product($id);
         return $product;
-    }
-
-    private function generate_payment_order_token(WC_Order $order): string
-    {
-        if (!$order) {
-            return "";
-        }
-        $secret_sha_key = _2C2P_SECRET_SHA_KEY;
-        $merchant_id = strval(_2C2P_MERCHANT_ID);
-        $payload = array(
-            "merchantID" => $merchant_id,
-            "order_id" => $order->get_id(),
-            "invoiceNo" => strval($order->get_id()),
-            "description" => $order->get_billing_first_name(),
-            "amount" => $order->get_total(),
-            "currencyCode" => $order->get_currency(),
-            "uiParams" => array(
-                "userInfo" => array(
-                    "name" => $order->get_billing_first_name(),
-                    "email" => $order->get_billing_email(),
-                    "mobileNo" => $order->get_billing_phone()
-                )
-            ),
-            "payment_description" => $order->get_billing_first_name() . " Buyer",
-            "default_lang" => "en",
-            "backendReturnUrl" => "",
-            "frontendReturnUrl" => "",
-        );
-        if (is_enabled_redirect_backend_url()) {
-            $payload["backendReturnUrl"] = _2C2P_REDIRECT_BACKEND_URL;
-        }
-        if (is_enabled_redirect_frontend_url()) {
-            $payload["frontendReturnUrl"] = _2C2P_REDIRECT_FRONTEND_URL;
-        }
-        if (is_enabled_redirect_notification()) {
-            $redirect_url = $this->get_wp_return_url($order);
-            $payload["backendReturnUrl"] = $redirect_url;
-            $payload["frontendReturnUrl"] = $redirect_url;
-        }
-        if (is_enabled_debug_mode()) {
-            debug("2C2P payment token request", $payload);
-        }
-        $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
-        return $jwt;
-    }
-
-    private function generate_payment_inquiry_token(WC_Order $order): string
-    {
-        if (!$order) {
-            return "";
-        }
-        $secret_sha_key = _2C2P_SECRET_SHA_KEY;
-        $merchant_id = strval(_2C2P_MERCHANT_ID);
-        $payload = array(
-            "merchantID" => $merchant_id,
-            "invoiceNo" => strval($order->get_id()),
-            "locale" => "en"
-        );
-        if (is_enabled_debug_mode()) {
-            infoColor("2C2P payment inquiry request", $payload);
-        }
-        $jwt = JWT::encode($payload, $secret_sha_key, 'HS256');
-        return $jwt;
-    }
-
-    private function get_wp_return_url(WC_Order $order = null)
-    {
-        if ($order) {
-            $return_url = $order->get_checkout_order_received_url();
-        } else {
-            $return_url = wc_get_endpoint_url('order-received', '', wc_get_checkout_url());
-        }
-        return apply_filters('woocommerce_get_return_url', $return_url, $order);
-    }
-
-    private function decode_payment_payload_token($token): array|null
-    {
-        if ($token == null || $token == "") {
-            return $token;
-        }
-        try {
-            $decodedPayload = JWT::decode($token, new Key(_2C2P_SECRET_SHA_KEY, 'HS256'));
-            $decoded_array = (array) $decodedPayload;
-            return $decoded_array;
-        } catch (Exception $e) {
-            return null;
-        }
-    }
-
-    private function send_payment_order_request($token): mixed
-    {
-        $endpoint = _2C2P_HOST . '/paymentToken';
-
-        $data = array(
-            'payload' => $token,
-        );
-
-        $headers = array(
-            'Content-Type' => 'application/json',
-        );
-
-        $args = array(
-            'headers' => $headers,
-            'body' => json_encode($data),
-        );
-
-        $response = wp_remote_post($endpoint, $args);
-        if (is_wp_error($response)) {
-            return null;
-        }
-        $response_body = wp_remote_retrieve_body($response);
-        $decoded_response = json_decode($response_body, true);
-        return $decoded_response;
-    }
-
-    private function send_payment_inquiry_request($token): mixed
-    {
-        $endpoint = _2C2P_HOST . '/paymentInquiry';
-
-        $data = array(
-            'payload' => $token,
-        );
-
-        $headers = array(
-            'Content-Type' => 'application/json',
-        );
-
-        $args = array(
-            'headers' => $headers,
-            'body' => json_encode($data),
-        );
-
-        $response = wp_remote_post($endpoint, $args);
-        if (is_wp_error($response)) {
-            return null;
-        }
-        $response_body = wp_remote_retrieve_body($response);
-        $decoded_response = json_decode($response_body, true);
-        return $decoded_response;
-    }
-
-    private function is_2c2p_response_success($payload): bool
-    {
-        if (!is_array($payload)) {
-            return false;
-        }
-        if (!array_key_exists('respCode', $payload)) {
-            return false;
-        }
-        return $payload["respCode"] === "0000";
     }
 }
