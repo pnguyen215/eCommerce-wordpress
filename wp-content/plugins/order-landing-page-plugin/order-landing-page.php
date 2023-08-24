@@ -12,19 +12,26 @@ if (!defined('ABSPATH')) {
 
 // Include the main plugin class
 require_once plugin_dir_path(__FILE__) . 'provider/OrderLandingPageProvider.php';
+require_once plugin_dir_path(__FILE__) . 'services/_2c2pService.php';
+
+$_2c2pService = new _2C2PService();
 
 // Initialize the plugin
-function order_landing_page_plugin_init()
+function order_landing_page_plugin_init($_2c2pService)
 {
-    $order_plugin = new OrderLandingPageProvider();
+    $order_plugin = new OrderLandingPageProvider($_2c2pService);
     $order_plugin->init();
 }
-add_action('plugins_loaded', 'order_landing_page_plugin_init');
+add_action('plugins_loaded', function () use ($_2c2pService) {
+    order_landing_page_plugin_init($_2c2pService);
+});
 
 // Define a function to handle the "order-received" event 
-function order_landing_page_received_event_handler($order_id)
+function order_landing_page_received_event_handler($order_id, $_2c2pService)
 {
-    $order_plugin = new OrderLandingPageProvider();
+    $order_plugin = new OrderLandingPageProvider($_2c2pService);
     $order_plugin->process_order_received_event_handler($order_id);
 }
-add_action('woocommerce_thankyou', 'order_landing_page_received_event_handler', 10, 1);
+add_action('woocommerce_thankyou', function ($order_id) use ($_2c2pService) {
+    order_landing_page_received_event_handler($order_id, $_2c2pService);
+}, 10, 1);

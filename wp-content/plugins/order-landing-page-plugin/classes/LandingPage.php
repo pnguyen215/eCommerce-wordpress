@@ -107,7 +107,7 @@ class LandingPage implements \JsonSerializable
         return is_null($landing) ? false : !empty($landing->transaction_id);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return get_object_vars($this);
     }

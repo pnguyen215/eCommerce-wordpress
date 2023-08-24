@@ -59,7 +59,7 @@ class OfferLandingPage implements \JsonSerializable
         return is_null($order) ? false : is_numeric($order->product_id) && $order->product_id > 0;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return get_object_vars($this);
     }

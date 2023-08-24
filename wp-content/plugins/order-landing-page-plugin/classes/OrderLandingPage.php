@@ -104,7 +104,7 @@ class OrderLandingPage implements \JsonSerializable
         return !empty($order->customer_email) && is_email($order->customer_email);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return get_object_vars($this);
     }
