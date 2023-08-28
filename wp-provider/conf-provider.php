@@ -3,10 +3,10 @@ require_once __DIR__ . './../conf.php';
 
 function is_enabled_debug_mode(): bool
 {
-    if (empty(ENABLED_DEBUG_MODE) || is_null(ENABLED_DEBUG_MODE)) {
+    if (empty(ENABLED_APP_DEBUG_MODE) || is_null(ENABLED_APP_DEBUG_MODE)) {
         return false;
     }
-    return ENABLED_DEBUG_MODE === "true" ? true : false;
+    return ENABLED_APP_DEBUG_MODE === "true" ? true : false;
 }
 
 function is_enabled_generate_click_id(): bool
@@ -96,9 +96,14 @@ function get_symbol_sku(): string
     return "-";
 }
 
-function get_redirect_link_thank_you(): string
+function get_redirect_link_order_completed(): string
 {
-    return empty(REDIRECT_LINK_THANK_YOU) && is_null(REDIRECT_LINK_THANK_YOU) ? "" : REDIRECT_LINK_THANK_YOU;
+    return empty(REDIRECT_LINK_ORDER_COMPLETED) && is_null(REDIRECT_LINK_ORDER_COMPLETED) ? "" : REDIRECT_LINK_ORDER_COMPLETED;
+}
+
+function get_redirect_link_order_failure(): string
+{
+    return empty(REDIRECT_LINK_ORDER_FAILURE) && is_null(REDIRECT_LINK_ORDER_FAILURE) ? "" : REDIRECT_LINK_ORDER_FAILURE;
 }
 
 function get_virtual_sandbox_province_id(): int
