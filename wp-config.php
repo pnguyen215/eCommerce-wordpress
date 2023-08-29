@@ -20,6 +20,7 @@
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
 include("conf.php");
+include("wp-provider/conf-provider.php");
 
 define('DB_NAME', DATABASE_NAME);
 
@@ -58,8 +59,8 @@ define('AUTH_SALT', 'W)2+U-3*3,DLW_Uej#o_,fa{i|kp!CA!: ~*AU#[KL3b[c>M^X~|y+;,0JB
 define('SECURE_AUTH_SALT', '4%N|!K|0~^0KCVG0Sd6N)%oOz0w%h)Zwe4W!4qJz>f=U*a{)*&`w{U$uR_kc,%o5');
 define('LOGGED_IN_SALT', 'm,X5*)x.n!L$,a{T|@H}C:9(l[</N-jceqrq`?F_4xtVnz,y?6mxR1Nir($:h!`(');
 define('NONCE_SALT', 'wQIi$.WDMRw&Fn@tw1ezcaMu?;cCD%s@?PL/`r~t  UxuJ+Ic7f[#9FdtIZ|neT4');
-define('WP_DEBUG_LOG', true);
-define('WP_DEBUG_DISPLAY', false);
+define('WP_DEBUG_LOG', is_enabled_wp_debug_log_file());
+define('WP_DEBUG_DISPLAY', is_enabled_debug_display());
 /**#@-*/
 
 /**
@@ -82,7 +83,7 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/documentation/article/debugging-in-wordpress/
  */
-define('WP_DEBUG', true);
+define('WP_DEBUG', is_enabled_debug_mode());
 
 /* Add any custom values between this line and the "stop editing" line. */
 

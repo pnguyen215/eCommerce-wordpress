@@ -3,10 +3,26 @@ require_once __DIR__ . './../conf.php';
 
 function is_enabled_debug_mode(): bool
 {
-    if (empty(ENABLED_APP_DEBUG_MODE) || is_null(ENABLED_APP_DEBUG_MODE)) {
+    if (empty(WP_ENABLED_DEBUG_MODE) || is_null(WP_ENABLED_DEBUG_MODE)) {
         return false;
     }
-    return ENABLED_APP_DEBUG_MODE === "true" ? true : false;
+    return WP_ENABLED_DEBUG_MODE === "true" ? true : false;
+}
+
+function is_enabled_wp_debug_log_file(): bool
+{
+    if (empty(WP_DEBUG_LOG_FILE) || is_null(WP_DEBUG_LOG_FILE)) {
+        return false;
+    }
+    return WP_DEBUG_LOG_FILE == "true" ? true : false;
+}
+
+function is_enabled_debug_display(): bool
+{
+    if (empty(WP_ENABLED_DEBUG_DISPLAY) || is_null(WP_ENABLED_DEBUG_DISPLAY)) {
+        return false;
+    }
+    return WP_ENABLED_DEBUG_DISPLAY == "true" ? true : false;
 }
 
 function is_enabled_generate_click_id(): bool
@@ -43,12 +59,12 @@ function is_enabled_redirect_frontend_url(): bool
     return !empty(_2C2P_REDIRECT_FRONTEND_URL) && !is_null(_2C2P_REDIRECT_FRONTEND_URL);
 }
 
-function get_app_timezone(): string
+function get_wp_timezone(): string
 {
-    if (empty(APP_TIMEZONE) || is_null(APP_TIMEZONE)) {
+    if (empty(WP_TIMEZONE) || is_null(WP_TIMEZONE)) {
         return "Asia/Ho_Chi_Minh";
     }
-    return APP_TIMEZONE;
+    return WP_TIMEZONE;
 }
 
 function is_new_woo_version_by($version): bool

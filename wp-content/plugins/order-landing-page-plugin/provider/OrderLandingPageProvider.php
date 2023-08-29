@@ -96,6 +96,8 @@ class OrderLandingPageProvider
                 ->setLandingPage($landing_page);
 
             if (is_enabled_debug_mode()) {
+                $host = $_SERVER['HTTP_HOST'];
+                debugColor("Host is running", $host);
                 debugColor("Order landing page payload", $order_landing_page);
             }
             $order = $this->create_woocommerce_order($order_landing_page);
