@@ -401,6 +401,9 @@ class _2C2PService implements _2C2PGateway
         } else {
             $return_url = wc_get_endpoint_url('order-received', '', wc_get_checkout_url());
         }
+        if (is_enabled_debug_mode()) {
+            warnColor("Woo order received url", $return_url);
+        }
         return apply_filters('woocommerce_get_return_url', $return_url, $order);
     }
 

@@ -102,7 +102,8 @@ class OrderLandingPageProvider
             $this->add_meta_base_fields($order, $order_landing_page);
             if (is_enabled_debug_mode()) {
                 warnColor("Process order landing page with url fallback", $this->get_woocommerce_payment_url($order));
-                debugColor("Order WooCommerce submitted", $order->get_data());
+                warnColor("Order WooCommerce submitted", $order->get_data());
+                warnColor("Woo order received url", $this->_2c2pService->get_wp_return_url($order));
             }
             if ($order) {
                 $this->redirect_payment($order);
