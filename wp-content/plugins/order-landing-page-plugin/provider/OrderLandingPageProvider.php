@@ -27,6 +27,11 @@ class OrderLandingPageProvider
         add_action('template_redirect', array($this, 'process_order_landing_page'));
     }
 
+    public function listen()
+    {
+        add_action('template_redirect', array($this, 'process_order_received_listen'));
+    }
+
     public function process_order_landing_page()
     {
         if (
@@ -96,8 +101,6 @@ class OrderLandingPageProvider
                 ->setLandingPage($landing_page);
 
             if (is_enabled_debug_mode()) {
-                $host = $_SERVER['HTTP_HOST'];
-                debugColor("Host is running", $host);
                 debugColor("Order landing page payload", $order_landing_page);
             }
             $order = $this->create_woocommerce_order($order_landing_page);
@@ -115,7 +118,27 @@ class OrderLandingPageProvider
         }
     }
 
-    public function process_order_received_event_handler($order_id)
+    public function process_order_received_default($order_id)
+    {
+        $this->process_order_received_common($order_id);
+    }
+
+    public function process_order_received_listen()
+    {
+        if (
+            isset($_GET['order_id']) &&
+            isset($_GET['order_key']) &&
+            isset($_GET['order_value'])
+        ) {
+            $order_id = intval(isset($_GET['order_id']) ? sanitize_text_field($_GET['order_id']) : "0");
+            if ($order_id == 0) {
+                $this->redirect_page_payment(get_redirect_link_order_failure());
+            }
+            $this->process_order_received_common($order_id);
+        }
+    }
+
+    private function process_order_received_common($order_id)
     {
         if (is_enabled_redirect_checkout_payment_url()) {
             return;
@@ -145,6 +168,12 @@ class OrderLandingPageProvider
             successColor("2C2P payment inquiry result", $payload);
         }
         $this->update_order_woocommerce($order, $payload);
+        $success = $this->_2c2pService->is_2c2p_response_success($payload);
+        if ($success) {
+            $this->redirect_page_payment(get_redirect_link_order_completed());
+        } else {
+            $this->redirect_page_payment(get_redirect_link_order_failure());
+        }
     }
 
     private function update_order_woocommerce(WC_Order $order, array $payload)

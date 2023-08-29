@@ -16,7 +16,7 @@ require_once plugin_dir_path(__FILE__) . 'services/_2c2pService.php';
 
 $_2c2pService = new _2C2PService();
 
-// Initialize the plugin
+// Initialize order landing page
 function order_landing_page_plugin_init($_2c2pService)
 {
     $order_plugin = new OrderLandingPageProvider($_2c2pService);
@@ -26,11 +26,21 @@ add_action('plugins_loaded', function () use ($_2c2pService) {
     order_landing_page_plugin_init($_2c2pService);
 });
 
+// Listen fallback order landing page
+function order_landing_page_plugin_listen($_2c2pService)
+{
+    $order_plugin = new OrderLandingPageProvider($_2c2pService);
+    $order_plugin->listen();
+}
+add_action('plugins_loaded', function () use ($_2c2pService) {
+    order_landing_page_plugin_listen($_2c2pService);
+});
+
 // Define a function to handle the "order-received" event 
 function order_landing_page_received_event_handler($order_id, $_2c2pService)
 {
     $order_plugin = new OrderLandingPageProvider($_2c2pService);
-    $order_plugin->process_order_received_event_handler($order_id);
+    $order_plugin->process_order_received_default($order_id);
 }
 add_action('woocommerce_thankyou', function ($order_id) use ($_2c2pService) {
     order_landing_page_received_event_handler($order_id, $_2c2pService);

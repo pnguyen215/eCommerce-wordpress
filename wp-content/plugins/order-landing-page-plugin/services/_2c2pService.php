@@ -22,6 +22,7 @@ interface _2C2PGateway
     public function generate_payment_order_token(WC_Order $order): string;
     public function get_wp_return_url(WC_Order $order = null): mixed;
     public function send_card_token_information(string $token): mixed;
+    public function get_redirect_link(WC_Order $order = null): string;
 }
 
 class _2C2PService implements _2C2PGateway
@@ -383,8 +384,7 @@ class _2C2PService implements _2C2PGateway
             $payload["frontendReturnUrl"] = _2C2P_REDIRECT_FRONTEND_URL;
         }
         if (is_enabled_redirect_notification()) {
-            $redirect_url = $this->get_wp_return_url($order);
-            $payload["backendReturnUrl"] = $redirect_url;
+            $redirect_url = $this->get_redirect_link($order);
             $payload["frontendReturnUrl"] = $redirect_url;
         }
         if (is_enabled_debug_mode()) {
@@ -431,6 +431,15 @@ class _2C2PService implements _2C2PGateway
         $response_body = wp_remote_retrieve_body($response);
         $decoded_response = json_decode($response_body, true);
         return $decoded_response;
+    }
+
+    public function get_redirect_link(WC_Order $order = null): string
+    {
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
+        $_host = $_SERVER['HTTP_HOST'];
+        $host = $protocol . $_host;
+        $form = $host . "/confirmation?order_id=" . $order->get_id() . "&order_key=" . $order->get_order_key() . "&order_value=" . floatval($order->get_total());
+        return $form;
     }
 }
 
