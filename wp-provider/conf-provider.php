@@ -59,14 +59,6 @@ function is_enabled_redirect_frontend_url(): bool
     return !empty(_2C2P_REDIRECT_FRONTEND_URL) && !is_null(_2C2P_REDIRECT_FRONTEND_URL);
 }
 
-function get_wp_timezone(): string
-{
-    if (empty(WP_TIMEZONE) || is_null(WP_TIMEZONE)) {
-        return "Asia/Ho_Chi_Minh";
-    }
-    return WP_TIMEZONE;
-}
-
 function is_new_woo_version_by($version): bool
 {
     if (is_null($version) || empty($version)) {

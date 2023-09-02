@@ -108,12 +108,11 @@ class OrderLandingPageProvider
             if (is_enabled_debug_mode()) {
                 warnColor("Process order landing page with url fallback", $this->get_woocommerce_payment_url($order));
                 warnColor("Order WooCommerce submitted", $order->get_data());
-                warnColor("Woo order received url", $this->_2c2pService->get_wp_return_url($order));
             }
             if ($order) {
                 $this->redirect_payment($order);
             } else {
-                $this->redirect_page_order_error();
+                $this->redirect_page_payment(get_redirect_link_order_failure());
             }
         }
     }
@@ -369,7 +368,7 @@ class OrderLandingPageProvider
         $response = $this->_2c2pService->send_payment_order_request($raw);
 
         if (!is_array($response) || !array_key_exists('payload', $response)) {
-            $this->redirect_page_order_error();
+            $this->redirect_page_payment(get_redirect_link_order_failure());
             exit;
         }
         $token = $response["payload"];
