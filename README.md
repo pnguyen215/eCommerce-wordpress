@@ -11,7 +11,7 @@ The WordPress PHP Project is a custom theme/plugin that extends the functionalit
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/pnguyen215/trial-wordpress.git
+   git clone --depth 1 https://github.com/pnguyen215/eCommerce-wordpress.git eCommerce-wordpress
    ```
 
 2. Upload the theme/plugin folder to the `wp-content/themes` or `wp-content/plugins` directory of your WordPress installation.
